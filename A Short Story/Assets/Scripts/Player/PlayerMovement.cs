@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private int movementSpeed = 0;
     private Vector2 movementVector = new Vector2(0, 0);
@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.velocity = movementVector * Time.fixedDeltaTime;
+        rb.velocity = movementVector;
     }
 
     private void Move()
