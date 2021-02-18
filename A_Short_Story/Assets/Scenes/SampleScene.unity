@@ -133,7 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 78346602}
   - component: {fileID: 78346603}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: StaffLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -300,7 +300,7 @@ GameObject:
   - component: {fileID: 919366302}
   - component: {fileID: 919366303}
   - component: {fileID: 919366304}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Staff
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -509,7 +509,7 @@ GameObject:
   - component: {fileID: 2028086668}
   - component: {fileID: 2028086670}
   - component: {fileID: 2028086669}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
