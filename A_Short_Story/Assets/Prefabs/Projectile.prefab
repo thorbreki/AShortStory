@@ -129,6 +129,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementSpeed: 5
+  upgradeableSpeed: 1
 --- !u!50 &5576829443620604466
 Rigidbody2D:
   serializedVersion: 4
