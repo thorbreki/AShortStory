@@ -30,7 +30,7 @@ public class ProjectileController : MonoBehaviour
         imperfectionVector.x = targetVector.normalized.y; // The imperfectionVector is the targetVector rotated clockwise by 90° by saying x = y
         imperfectionVector.y = -targetVector.normalized.x; // and y = -x
 
-        float imperfection = Random.Range(1f, 1f); // How much the projectile will stray away from the mouse position
+        float imperfection = Random.Range(0f, 2f); // How much the projectile will stray away from the mouse position
         int positiveOrNegative = Random.Range(0, 2); // 0 = projectile will stray counter-clockwise, 1 = projectile will stray clockwise
 
         if (positiveOrNegative == 0)
