@@ -11,7 +11,6 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float zoomSpeed = 0f; // The t in the lerp when zoom levels of camera changes when switching between Player Modes (Army or Battle Modes)
 
     private Vector3 playerPosition; // The position of the Player
-    [SerializeField] private bool isArmyMode = false; // Is the Player managing his army
 
     // CAMERA VARIABLES
     private Camera cameraComponent; // The camera component of the camera
@@ -24,17 +23,17 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
-        if (isArmyMode)
+        if (GameManager.instance.isArmyMode)
         {
             ArmyMode();
         } else
         {
-        FollowPlayer();
+            BattleMode();
         }
     }
 
     // MAKE THE CAMERA FOLLOW THE PLAYER'S POSITION (BATTLE MODE)
-    private void FollowPlayer()
+    private void BattleMode()
     {
         cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, battleModeFOV, zoomSpeed);
         playerPosition.x = playerTransform.position.x;
@@ -46,11 +45,5 @@ public class CameraController : MonoBehaviour
     private void ArmyMode()
     {
         cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, armyModeFOV, zoomSpeed);
-    }
-
-    // SETS THE isArmyMode VARIABLE TO THE GIVEN BOOLEAN PARAMETER 
-    public void SetArmyMode(bool inputBool)
-    {
-        isArmyMode = inputBool;
     }
 }

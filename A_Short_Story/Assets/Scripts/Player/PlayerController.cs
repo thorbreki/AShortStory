@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private int movementSpeed = 0;
-    private Vector2 movementVector = new Vector2(0, 0);
-    private Rigidbody2D rb;
+    [SerializeField] private int movementSpeed = 0; // The speed of the Player's movement
+    private Vector2 movementVector = new Vector2(0, 0); // The vector of the Player's movement
+    private Rigidbody2D rb; // The Player's rigidbody component
 
     // Start is called before the first frame update
     private void Start()
@@ -17,15 +17,16 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        Move();
+        HandleMoveVector();
+        HandlePlayerMode();
     }
 
     private void FixedUpdate()
     {
-        rb.velocity = movementVector;
+        rb.velocity = movementVector; // Actually move the character
     }
 
-    private void Move()
+    private void HandleMoveVector()
     {
         if (Input.GetKey(KeyCode.A))
         {
@@ -38,6 +39,14 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             movementVector.x = 0;
+        }
+    }
+
+    private void HandlePlayerMode()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            GameManager.instance.FlipArmyMode();
         }
     }
 }

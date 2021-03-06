@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class ProjectileController : MonoBehaviour
 {
-    [SerializeField] private float movementSpeed = 0f;
+    [SerializeField] private float movementSpeed = 0f; // The speed of the projectile's trajectory
+    [SerializeField] private float spinSpeed = 0f; // How fast the projectile spins when alive
     public float upgradeableSpeed = 1f;
 
     private Vector2 targetVector; // The target direction the projectile shot by the staff tries to travel in (mouse Position)
@@ -21,6 +22,11 @@ public class ProjectileController : MonoBehaviour
 
         // Start dying
         StartCoroutine(DieCountdown());
+    }
+
+    private void Update()
+    {
+        Spin();
     }
 
     // MOVE TOWARDS THE CURSOR BUT WITH IMPERFECT ACCURACY
@@ -40,6 +46,12 @@ public class ProjectileController : MonoBehaviour
         {
             rigidBody.velocity = (targetVector.normalized * movementSpeed * upgradeableSpeed) - (imperfectionVector.normalized * imperfection * upgradeableSpeed);
         }
+    }
+
+    // THE PROJECTILE SPINS WHEN ITS ALIVE
+    private void Spin()
+    {
+        transform.Rotate(0f, 0f, spinSpeed * Time.deltaTime);
     }
 
     private IEnumerator DieCountdown()

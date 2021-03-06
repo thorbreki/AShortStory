@@ -129,6 +129,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementSpeed: 10
+  spinSpeed: -200
   upgradeableSpeed: 1
 --- !u!50 &5576829443620604466
 Rigidbody2D:
