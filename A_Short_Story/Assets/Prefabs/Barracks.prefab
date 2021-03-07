@@ -180,6 +180,7 @@ GameObject:
   - component: {fileID: 3080228704111259170}
   - component: {fileID: 9115312670592040220}
   - component: {fileID: 7611533702216651055}
+  - component: {fileID: 7395108891160341419}
   m_Layer: 0
   m_Name: Barracks
   m_TagString: Untagged
@@ -265,3 +266,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fadacdeba326b9248bf1aa612cba65c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!61 &7395108891160341419
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8005926869817689646}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 5.12, y: 5.12}
+    newSize: {x: 5.12, y: 5.12}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 5.12, y: 5.12}
+  m_EdgeRadius: 0

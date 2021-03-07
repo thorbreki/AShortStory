@@ -17,7 +17,12 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        // The Player can only move when the Player Mode = Battle Mode
+        if (!GameManager.instance.isArmyMode)
+        {
         HandleMoveVector();
+        }
+
         HandlePlayerMode();
     }
 
@@ -26,6 +31,7 @@ public class PlayerController : MonoBehaviour
         rb.velocity = movementVector; // Actually move the character
     }
 
+    // TAKE INPUT FROM THE PLAYER AND CREATE THE VECTOR THAT WILL BE THE MOVEMENT OF THE PLAYER
     private void HandleMoveVector()
     {
         if (Input.GetKey(KeyCode.A))

@@ -4,15 +4,8 @@ using UnityEngine;
 
 public class BarracksController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private void OnMouseDown()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        print("THE PLAYER CLICKED ON THE BARRACK!");
     }
 }

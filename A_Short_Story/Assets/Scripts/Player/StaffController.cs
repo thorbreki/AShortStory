@@ -11,14 +11,19 @@ public class StaffController : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (!GameManager.instance.isArmyMode)
         {
-            Shoot();
+            HandleShooting();
         }
     }
 
-    private void Shoot()
+
+    // WHEN PLAYER PRESSES THE LEFT MOUSE BUTTON, THEN SPAWN A PROJECTILE
+    private void HandleShooting()
     {
-        Instantiate(projectile, staffLight.position, transform.rotation);
+        if (Input.GetMouseButtonDown(0))
+        {
+            Instantiate(projectile, staffLight.position, transform.rotation);
+        }
     }
 }
