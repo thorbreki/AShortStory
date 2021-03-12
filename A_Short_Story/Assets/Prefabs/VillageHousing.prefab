@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7520343023550351003}
   - component: {fileID: 4351201927171429797}
   - component: {fileID: 3117355289154992534}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: VillageHousing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: 807538543105032059}
   - component: {fileID: 6474318132006441138}
   - component: {fileID: 5306679431645704059}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}

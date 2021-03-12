@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BarracksController : MonoBehaviour
+public class SmithyController : MonoBehaviour
 {
     private void OnMouseDown()
     {
         if (GameManager.instance.isArmyMode)
         {
-            print("THE PLAYER CLICKED ON THE BARRACK!");
+            print("THE PLAYER CLICKED ON THE SMITHY!");
         }
     }
 }
