@@ -20,7 +20,11 @@ public class PlayerController : MonoBehaviour
         // The Player can only move when the Player Mode = Battle Mode
         if (!GameManager.instance.isArmyMode)
         {
-        HandleMoveVector();
+            HandleMoveVector();
+        } else
+        {
+            if (movementVector.x != 0)
+                movementVector.x = 0;
         }
 
         HandlePlayerMode();

@@ -249,8 +249,8 @@ MonoBehaviour:
   battleModeFOV: 5
   armyModeFOV: 10
   zoomSpeed: 0.2
-  maximumMovementSpeed: 5
-  mouseMoveThreshold: 150
+  maximumMovementSpeed: 15
+  numOfScreenParts: 4
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -950,7 +950,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3080228704111259170, guid: b80d241eab1afc84ba1e1128e69f24be, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3080228704111259170, guid: b80d241eab1afc84ba1e1128e69f24be, type: 3}
       propertyPath: m_LocalRotation.w

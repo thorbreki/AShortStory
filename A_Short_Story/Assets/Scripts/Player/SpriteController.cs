@@ -17,6 +17,12 @@ public class SpriteController : MonoBehaviour
         if (!GameManager.instance.isArmyMode)
         {
             HandleWalkAnimation();
+        } else
+        {
+            if (animator.GetBool("isWalking"))
+            {
+                animator.SetBool("isWalking", false);
+            }
         }
     }
 
