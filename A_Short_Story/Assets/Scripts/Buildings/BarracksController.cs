@@ -8,7 +8,7 @@ public class BarracksController : MonoBehaviour
     {
         if (GameManager.instance.isArmyMode)
         {
-            print("THE PLAYER CLICKED ON THE BARRACK!");
+            EventManager.RaiseOnBarrackClick(transform.position);
         }
     }
 }

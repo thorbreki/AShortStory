@@ -23,6 +23,7 @@ public class CameraController : MonoBehaviour
     // OTHER VARIABLES
     private float t; // For Lerping purposes
     private float startingNum; // The a parameter in the Lerp function
+    private bool isFocusedOnBuilding; // If the camera is looking at a building and therefore can't move (Barracks, Smithy, ...)
 
 
     private void Start()
@@ -31,41 +32,41 @@ public class CameraController : MonoBehaviour
         cameraComponent = GetComponent<Camera>(); // Get the camera component of the camera
         screenWidth = Screen.width; // Set the screen width in the beginning to not have to do it again (might want to rethink that later on)
         mouseMoveThreshold = Screen.width / numOfScreenParts; // The threshold will be equal to the width of a single part of the screen
-        t = 0f; // The t always starts as 0 when Lerping
+        isFocusedOnBuilding = false; // The camera is not looking at a building when game starts
+
+        EventManager.onBarrackClick += OnBuildingClick; // When player clicks on a building, the Camera's OnBuildingClick method runs
     }
 
-    private void FixedUpdate()
+    void OnDestroy()
+    {
+        EventManager.onBarrackClick -= OnBuildingClick; // Remove event listener
+    }
+
+
+    private void Update()
     {
         if (GameManager.instance.isArmyMode)
         {
             ArmyMode();
-        } else
+        }
+        else
         {
-            BattleMode();
+            cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, battleModeFOV, zoomSpeed); // Zoom in
+            targetPosition.x = Mathf.Lerp(transform.position.x, playerTransform.position.x, 0.2f);
+            transform.position = targetPosition;
         }
     }
-
-    // MAKE THE CAMERA FOLLOW THE PLAYER'S POSITION (BATTLE MODE)
-    private void BattleMode()
-    {
-        cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, battleModeFOV, zoomSpeed); // Lerp the camera's FOV to get a nice smooth zoom-in effect
-        // targetPosition.x = Lerp(startingNum, playerTransform.position.x, 1f);
-        targetPosition.x = Mathf.Lerp(transform.position.x, playerTransform.position.x, 0.1f);
-        targetPosition.y = playerTransform.position.y;
-        transform.position = targetPosition;
-    }
-
-    // TODO: CHANGE THE MOUSE MOVEMENT OF THE CAMERA IN ARMY MODE BY SPLITTING THE SCREEN UP INTO N DIFFERENT SAME-SIZE PARTS AND USE THE WIDTH OF 1 OF THOSE PARTS TO DETERMINE IF THE MOUSE IS WITHIN THE THRESHOLD
-    // THAT WAY NOT HAVING TO DEAL WITH DIFFERENT SCREEN SIZES, WILL ALWAYS BE RELATIVE TO HOW BIG THE SCREEN IS
 
     // MAKE CAMERA FUNCTION ACCORDINGLY WHEN PLAYER IS IN ARMY MODE (ARMY MODE)
     private void ArmyMode()
     {
-        
         cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, armyModeFOV, zoomSpeed); // Zoom out
 
+        if (isFocusedOnBuilding)
+            return;
+
         // Check and handle if player presses both shift, and A or D
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.A)) // When the player presses Shift and A the camera should pan to the left at full speed
+        else if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.A)) // When the player presses Shift and A the camera should pan to the left at full speed
         {
             transform.Translate(-maximumMovementSpeed * Time.deltaTime, 0f, 0f);
         }
@@ -78,7 +79,8 @@ public class CameraController : MonoBehaviour
         else if (Input.GetKey(KeyCode.A)) // When the player presses A the camera should pan to the left
         {
             transform.Translate((-maximumMovementSpeed / 2) * Time.deltaTime, 0f, 0f);
-        } else if (Input.GetKey(KeyCode.D)) // When the player presses D the camera should pan to the right
+        }
+        else if (Input.GetKey(KeyCode.D)) // When the player presses D the camera should pan to the right
         {
             transform.Translate((maximumMovementSpeed / 2) * Time.deltaTime, 0f, 0f);
         }
@@ -87,7 +89,8 @@ public class CameraController : MonoBehaviour
         else if (Input.mousePosition.x < mouseMoveThreshold) // Checking if the mouse is close enough to the left edge of the screen
         {
             transform.Translate(-maximumMovementSpeed * CalculateMouseMoveSpeed(0f) * Time.deltaTime, 0f, 0f);
-        } else if (Input.mousePosition.x > (Screen.width - mouseMoveThreshold))
+        }
+        else if (Input.mousePosition.x > (Screen.width - mouseMoveThreshold))
         {
             transform.Translate(maximumMovementSpeed * CalculateMouseMoveSpeed(Screen.width) * Time.deltaTime, 0f, 0f);
         }
@@ -104,14 +107,35 @@ public class CameraController : MonoBehaviour
         return Mathf.Abs(thresholdPosition - Input.mousePosition.x) / mouseMoveThreshold;
     }
 
-    // MY OWN LERPING METHOD WHICH KEEPS TRACK OF T, HOWEVER MAKE SURE TO ALWAYS RESET T BEFORE THIS EQUATION
-    private float Lerp(float a, float b, float speed)
+    private void OnBuildingClick(Vector3 barrackPosition)
     {
-        float answer = ((1 - t) * a) + (t * b);
-        if (t < 1f)
-            t += Time.deltaTime * speed;
-        else
-            t = 1f;
-        return answer;
+        StartCoroutine(SmoothLerpPosition(barrackPosition));
+        isFocusedOnBuilding = true;
+    }
+
+    // SMOOTHLY LERP THE CAMERA'S X POSITION TO TARGET X POSITION (STOPS WHEN CLOSE ENOUGH TO THE TARGET)
+    private IEnumerator SmoothLerpPosition(Vector3 inputPosition)
+    {
+        targetPosition.x = inputPosition.x;
+        while (Mathf.Abs(transform.position.x - targetPosition.x) > 0.01f)
+        {
+            transform.position = Vector3.Lerp(transform.position, targetPosition, 0.2f);
+            yield return null;
+        }
+
+        transform.position = targetPosition;
+        print("SmoothLerpPosition is done!");
     }
 }
+
+
+// --------------------------------------------------------------------- SCRAPPED
+// MAKE THE CAMERA FOLLOW THE PLAYER'S POSITION (BATTLE MODE)
+//private void BattleMode()
+//{
+//    cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, battleModeFOV, zoomSpeed); // Lerp the camera's FOV to get a nice smooth zoom-in effect
+//    // targetPosition.x = Lerp(startingNum, playerTransform.position.x, 1f);
+//    targetPosition.x = Mathf.Lerp(transform.position.x, playerTransform.position.x, 0.1f);
+//    targetPosition.y = playerTransform.position.y;
+//    transform.position = targetPosition;
+//}

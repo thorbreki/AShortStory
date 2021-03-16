@@ -21,18 +21,15 @@ public class PlayerController : MonoBehaviour
         if (!GameManager.instance.isArmyMode)
         {
             HandleMoveVector();
-        } else
-        {
-            if (movementVector.x != 0)
-                movementVector.x = 0;
         }
 
+        transform.Translate(movementVector * Time.deltaTime);
         HandlePlayerMode();
     }
 
     private void FixedUpdate()
     {
-        rb.velocity = movementVector; // Actually move the character
+        //rb.velocity = movementVector; // Actually move the character
     }
 
     // TAKE INPUT FROM THE PLAYER AND CREATE THE VECTOR THAT WILL BE THE MOVEMENT OF THE PLAYER
@@ -57,6 +54,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             GameManager.instance.FlipArmyMode();
+            movementVector.x = 0;
         }
     }
 }
