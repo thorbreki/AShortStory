@@ -11,7 +11,7 @@ public class StaffController : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (!GameManager.instance.isArmyMode)
+        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
         {
             HandleShooting();
         }

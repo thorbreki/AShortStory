@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         // The Player can only move when the Player Mode = Battle Mode
-        if (!GameManager.instance.isArmyMode)
+        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
         {
             HandleMoveVector();
         }
@@ -53,8 +53,13 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            GameManager.instance.FlipArmyMode();
-            movementVector.x = 0;
+            if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
+            {
+                GameManager.instance.SetPlayerMode(Constants.PlayerMode.Army);
+                movementVector.x = 0;
+            }
+            else
+                GameManager.instance.SetPlayerMode(Constants.PlayerMode.Battle);
         }
     }
 }

@@ -14,7 +14,7 @@ public class SpriteController : MonoBehaviour
     private void Update()
     {
         // Only execute the walk animation if the Player Mode = Battle Mode
-        if (!GameManager.instance.isArmyMode)
+        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
         {
             HandleWalkAnimation();
         } else

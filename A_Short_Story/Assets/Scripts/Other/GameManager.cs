@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance; // The singleton GameManager instance
 
     // PUBLIC VARIABLES
-    public bool isArmyMode = false; // This is the variable that chooses what Player Mode is ongoing: false = Battle Mode, true = Army Mode
+    private Constants.PlayerMode playerMode = Constants.PlayerMode.Battle; // This is the variable that chooses what Player Mode is ongoing: false = Battle Mode, true = Army Mode
 
     private void Awake()
     {
@@ -16,13 +16,19 @@ public class GameManager : MonoBehaviour
         // Cursor.lockState = CursorLockMode.Confined;
     }
 
+    // -------------------------------------------------------------------
+    // G E T T E R S
+    public Constants.PlayerMode GetPlayerMode()
+    {
+        return playerMode;
+    }
 
     // -------------------------------------------------------------------
     // S E T T E R S
 
     // FLIPS THE ARMY MODE OF THE MAIN CAMERA'S CAMERACONTROLLER COMPONENT
-    public void FlipArmyMode()
+    public void SetPlayerMode(Constants.PlayerMode newPlayerMode)
     {
-        isArmyMode = !isArmyMode;
+        playerMode = newPlayerMode;
     }
 }
