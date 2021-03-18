@@ -23,8 +23,11 @@ public class PlayerController : MonoBehaviour
             HandleMoveVector();
         }
 
+        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle || GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
+        {
+            HandlePlayerMode();
+        }
         transform.Translate(movementVector * Time.deltaTime);
-        HandlePlayerMode();
     }
 
     private void FixedUpdate()

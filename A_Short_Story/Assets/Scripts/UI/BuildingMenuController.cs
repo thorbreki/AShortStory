@@ -4,18 +4,28 @@ using UnityEngine;
 
 public class BuildingMenuController : MonoBehaviour
 {
-    private float descentAmount = 181f; // How much the menu descends down from the starting point
-    private Vector3 startingPosition; // The position where the menu started at
-    private RectTransform rectTransform; // The RectTransform component of this gameObject
+    //[SerializeField] private GameObject swordsmanObject; // The Swordsman prefab
+    //[SerializeField] private GameObject archerObject; // The Archer prefab
+    //[SerializeField] private GameObject soilderTrainerObject; // The Soldier Trainer prefab
+    //[SerializeField] private GameObject builderObject; // The Builder prefab
+    //[SerializeField] private GameObject builderTrainerObject; // The Builder Trainer prefab
+    private RectTransform rectTransform;
+    private float ascendAmount = 210f;
 
-    private void Awake()
+    private void Start()
     {
         rectTransform = GetComponent<RectTransform>();
-        startingPosition = rectTransform.anchoredPosition;
-        StartCoroutine(SmoothLerpPosition(rectTransform, new Vector3(rectTransform.anchoredPosition.x, rectTransform.anchoredPosition.y - descentAmount, rectTransform.position.z), 0.1f, 0.05f));
     }
 
-    private IEnumerator SmoothLerpPosition(RectTransform inputTransform, Vector3 targetPosition, float speed, float threshold)
+
+    public void StopBuildingInteraction()
+    {
+        StartCoroutine(AscendMenuCoroutine(rectTransform, new Vector3(rectTransform.anchoredPosition.x, rectTransform.anchoredPosition.y + ascendAmount, transform.position.z), 0.1f, 0.05f));
+        GameManager.instance.SetPlayerMode(Constants.PlayerMode.Army);
+    }
+        
+    // THIS COROUTINE MAKES THE MENU GO UP, OVER THE CANVAS AND SET IT AS INACTIVE
+    private IEnumerator AscendMenuCoroutine(RectTransform inputTransform, Vector3 targetPosition, float speed, float threshold)
     {
         print("starting");
         while (Vector2.Distance(inputTransform.anchoredPosition, targetPosition) > threshold)
@@ -24,6 +34,7 @@ public class BuildingMenuController : MonoBehaviour
             yield return null;
         }
         inputTransform.anchoredPosition = targetPosition;
-        Debug.Log("SmoothLerpPosition is done!");
+        Debug.Log("AscendMenu is done!");
+        gameObject.SetActive(false);
     }
 }
