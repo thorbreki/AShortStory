@@ -20,6 +20,8 @@ public class CameraController : MonoBehaviour
     private float screenWidth; // The width of the screen (in pixel coordinates)
     private float mouseMoveThreshold = 0f; // How close to the edges of the screen does the cursor need to be in order for the camera to start move when game is in Army Mode
 
+    private Coroutine smoothLerpCoroutine; // The variable that holds the SmoothLerpCoroutine object
+
 
     private void Start()
     {
@@ -94,26 +96,15 @@ public class CameraController : MonoBehaviour
         return Mathf.Abs(thresholdPosition - Input.mousePosition.x) / mouseMoveThreshold;
     }
 
-    // SMOOTHLY LERP THE CAMERA'S X POSITION TO TARGET X POSITION (STOPS WHEN CLOSE ENOUGH TO THE TARGET)
-    private IEnumerator SmoothLerpPosition(Vector3 inputPosition)
-    {
-        targetPosition.x = inputPosition.x;
-        while (Mathf.Abs(transform.position.x - targetPosition.x) > 0.01f)
-        {
-            transform.position = Vector3.Lerp(transform.position, targetPosition, 0.2f);
-            yield return null;
-        }
-
-        transform.position = targetPosition;
-        print("SmoothLerpPosition is done!");
-    }
-
 
     private void OnBuildingClick(Vector3 barrackPosition)
     {
-        StopCoroutine("SmoothLerpPosition");
-        // StartCoroutine(SmoothLerpPosition(barrackPosition));
-        StartCoroutine("SmoothLerpPosition", barrackPosition);
+        if (smoothLerpCoroutine != null)
+        {
+            StopCoroutine(smoothLerpCoroutine);
+        }
+
+        smoothLerpCoroutine = StartCoroutine(Utils.SmoothLerpPosition(transform, new Vector3(barrackPosition.x, transform.position.y, transform.position.z), 0.2f, 0.05f));
     }
 }
 
@@ -134,3 +125,17 @@ public class CameraController : MonoBehaviour
 //{
 
 //}
+
+// SMOOTHLY LERP THE CAMERA'S X POSITION TO TARGET X POSITION (STOPS WHEN CLOSE ENOUGH TO THE TARGET)
+    //private IEnumerator SmoothLerpPosition(Vector3 inputPosition)
+    //{
+    //    targetPosition.x = inputPosition.x;
+    //    while (Mathf.Abs(transform.position.x - targetPosition.x) > 0.01f)
+    //    {
+    //        transform.position = Vector3.Lerp(transform.position, targetPosition, 0.2f);
+    //        yield return null;
+    //    }
+
+    //    transform.position = targetPosition;
+    //    print("SmoothLerpPosition is done!");
+    //}
