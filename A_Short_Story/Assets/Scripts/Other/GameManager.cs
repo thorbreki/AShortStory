@@ -8,12 +8,13 @@ public class GameManager : MonoBehaviour
     public static GameManager instance; // The singleton GameManager instance
 
     // PUBLIC VARIABLES
-    private Constants.PlayerMode playerMode = Constants.PlayerMode.Battle; // This is the variable that chooses what Player Mode is ongoing: false = Battle Mode, true = Army Mode
+    private Constants.PlayerMode playerMode; // This is the variable that chooses what Player Mode is ongoing: false = Battle Mode, true = Army Mode
 
     private void Awake()
     {
         instance = this;
         // Cursor.lockState = CursorLockMode.Confined;
+        playerMode = Constants.PlayerMode.Army;
     }
 
     // -------------------------------------------------------------------

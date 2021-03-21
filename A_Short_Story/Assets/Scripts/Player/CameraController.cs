@@ -15,6 +15,8 @@ public class CameraController : MonoBehaviour
     // CAMERA VARIABLES
     [SerializeField] private float maximumMovementSpeed = 0f; // How fast the Camera can move when game is in Army Mode
     [SerializeField] private int numOfScreenParts = 3; // How many parts the screen should be partitioned, that way calculating the mouseMoveThreshold correctly no matter the screen size
+    [SerializeField] private float cameraZoomDeltaArrows; // How fast the camera zooms in and out using the arrow keys
+    [SerializeField] private float cameraZoomDeltaMouse; // How fast the camera zooms in and out using the mouse wheel
 
     private Camera cameraComponent; // The camera component of the camera
     private float screenWidth; // The width of the screen (in pixel coordinates)
@@ -32,6 +34,7 @@ public class CameraController : MonoBehaviour
 
         EventManager.onBarrackClick += OnBuildingClick; // When player clicks on a building, the Camera's OnBuildingClick method runs
     }
+
 
     void OnDestroy()
     {
@@ -53,10 +56,12 @@ public class CameraController : MonoBehaviour
         }
     }
 
+
     // MAKE CAMERA FUNCTION ACCORDINGLY WHEN PLAYER IS IN ARMY MODE (ARMY MODE)
     private void ArmyMode()
     {
-        cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, armyModeFOV, zoomSpeed); // Zoom out
+        // Handle change in camera zoom
+        HandleZoom();
 
         // Check and handle if player presses both shift, and A or D
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.A)) // When the player presses Shift and A the camera should pan to the left at full speed
@@ -87,6 +92,23 @@ public class CameraController : MonoBehaviour
         {
             transform.Translate(maximumMovementSpeed * CalculateMouseMoveSpeed(Screen.width) * Time.deltaTime, 0f, 0f);
         }
+    }
+
+    // THIS FUNCTION HANDLES THE PLAYER WANTING TO ZOOM IN OR OUT, USING EITHER THE ARROW KEYS OR THE MOUSE WHEEL
+    private void HandleZoom()
+    {
+        // The mouse zooms in and out if the player scrolls the mouse wheel
+        armyModeFOV -= Input.mouseScrollDelta.y * cameraZoomDeltaMouse * Time.deltaTime;
+
+        // If the player presses the up arrow key, the camera zooms in, when pressing the down arrow key, the camera zooms out
+        if (Input.GetKey(KeyCode.W))
+        {
+            armyModeFOV -= cameraZoomDeltaArrows * Time.deltaTime;
+        } else if (Input.GetKey(KeyCode.S))
+        {
+            armyModeFOV += cameraZoomDeltaArrows * Time.deltaTime;
+        }
+        cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, armyModeFOV, zoomSpeed); // Lerp the zoom level
     }
 
     // RETURNS HOW MUCH OF THE MAXIMUM MOVEMENT SPEED THE CAMERA SHOULD BE MOVING ACCORDING TO THE POSITION OF THE MOUSE (CAN ASSUME THAT IT MOUSE POSITION IS ALWAYS WITHIN BOUNDS)
