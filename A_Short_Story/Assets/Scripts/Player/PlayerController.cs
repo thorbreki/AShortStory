@@ -6,33 +6,32 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private int movementSpeed = 0; // The speed of the Player's movement
     private Vector2 movementVector = new Vector2(0, 0); // The vector of the Player's movement
-    private Rigidbody2D rb; // The Player's rigidbody component
-
-    // Start is called before the first frame update
-    private void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
-    }
 
     // Update is called once per frame
     private void Update()
     {
+        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
+        {
+            HandleMoveSoldiers(); // Handle the player wanting to move soldiers to specific positions
+        }
         // The Player can only move when the Player Mode = Battle Mode
-        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
+        else if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
         {
             HandleMoveVector();
+            transform.Translate(movementVector * Time.deltaTime);
         }
-
-        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle || GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
-        {
-            HandlePlayerMode();
-        }
-        transform.Translate(movementVector * Time.deltaTime);
     }
 
-    private void FixedUpdate()
+    /// <summary>
+    /// When the Player right-clicks on the screen, all selected soldiers move to that position (on the ground of course)
+    /// </summary>
+    private void HandleMoveSoldiers()
     {
-        //rb.velocity = movementVector; // Actually move the character
+        if (Input.GetMouseButtonDown(1))
+        {
+            EventManager.RaiseOnMove(Camera.main.ScreenToWorldPoint(Input.mousePosition).x);
+            print("Raised the move event!");
+        }
     }
 
     // TAKE INPUT FROM THE PLAYER AND CREATE THE VECTOR THAT WILL BE THE MOVEMENT OF THE PLAYER
@@ -52,17 +51,19 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void HandlePlayerMode()
-    {
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
-            {
-                GameManager.instance.SetPlayerMode(Constants.PlayerMode.Army);
-                movementVector.x = 0;
-            }
-            else
-                GameManager.instance.SetPlayerMode(Constants.PlayerMode.Battle);
-        }
-    }
+
+    // ------------------------------------------------------------------- SCRAPPED
+    //private void HandlePlayerMode()
+    //{
+    //    if (Input.GetKeyDown(KeyCode.Tab))
+    //    {
+    //        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
+    //        {
+    //            GameManager.instance.SetPlayerMode(Constants.PlayerMode.Army);
+    //            movementVector.x = 0;
+    //        }
+    //        else
+    //            GameManager.instance.SetPlayerMode(Constants.PlayerMode.Battle);
+    //    }
+    //}
 }
