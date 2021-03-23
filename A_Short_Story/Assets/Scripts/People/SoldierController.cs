@@ -5,11 +5,19 @@ using UnityEngine;
 public class SoldierController : MonoBehaviour
 {
     [SerializeField] protected float movementSpeed; // The movementSpeed of this soldier
+    [SerializeField] private GameObject soldierSpriteObject; // The GameObject that holds the sprite of the soldier
+    [SerializeField] private GameObject selectedSprite; // The game object that shows wether a soldier is selected or not
+    protected Animator soldierAnimator; // The Animator component of the soldier
     protected bool controlled = false; // If the soldier is controlled the player can take control, otherwise the person thinks freely
-    protected bool selected = false; // A boolean to not make the
+    protected bool selected = false; // A boolean that specifies wether the soldier is selected or not
+
+    // Coroutine objects:
+    protected Coroutine moveToCoroutine; // The object storing the MoveToCor coroutine
 
     protected void Start()
     {
+        soldierAnimator = soldierSpriteObject.GetComponent<Animator>(); // Get the Animator component of the child sprite object
+        selectedSprite.SetActive(false);
         EventManager.onSelect += OnSelect;
     }
 
@@ -25,9 +33,11 @@ public class SoldierController : MonoBehaviour
         if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
         {
             selected = true; // Soldier becomes selected
+            selectedSprite.SetActive(true);
             EventManager.RaiseOnSelected(); // Let other soldiers know that this one is selected
             EventManager.onSelect += OnSelect; // Start listening to when other game objects get selected
             EventManager.onMove += OnMove; // Start listening to when the Player wants to move this soldier
+
             print("The spirit talks to me!"); // DEBUG
         }
     }
@@ -52,6 +62,7 @@ public class SoldierController : MonoBehaviour
     /// <returns></returns>
     protected IEnumerator MoveToCor(float targetX)
     {
+        soldierAnimator.SetBool("isWalking", true); // Start The walking animation
         float direction;
         if (targetX - transform.position.x > 0)
         {
@@ -67,6 +78,7 @@ public class SoldierController : MonoBehaviour
             yield return null;
         }
         transform.position = new Vector3(targetX, transform.position.y, transform.position.z);
+        soldierAnimator.SetBool("isWalking", false); // End The walking animation
     }
 
     /// <summary>
@@ -74,7 +86,9 @@ public class SoldierController : MonoBehaviour
     /// </summary>
     protected void OnMove(float targetX)
     {
-        StartCoroutine(MoveToCor(targetX));
+        if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); } // Make sure that no other instances of move coroutine are active
+
+        moveToCoroutine = StartCoroutine(MoveToCor(targetX)); // Start the move to coroutine and store the object for future checks
     }
 
     /// <summary>
@@ -84,6 +98,6 @@ public class SoldierController : MonoBehaviour
     {
         selected = false; // This soldier is not selected any more ;(
         EventManager.onSelect -= OnSelect; // Stop listening to the player selecting other objects since it doesn't matter
-        EventManager.onMove += OnMove; // Stop listening to the player wanting to move the soldier since the soldier is not selected anymore
+        EventManager.onMove -= OnMove; // Stop listening to the player wanting to move the soldier since the soldier is not selected anymore
     }
 }

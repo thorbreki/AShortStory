@@ -8,6 +8,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Transform playerTransform; // The Transform component of the Player
     [SerializeField] private float battleModeFOV = 5f; // The camera's Field of View when player is in Battle Mode
     [SerializeField] private float armyModeFOV = 5f; // The camera's Field of View when player is in Army Mode
+    [SerializeField] private float maxFOV = 10f; // The camera's maximum possible Field of View
+    [SerializeField] private float minFOV = 0f; // The camera's minimum possible Field of View
     [SerializeField] private float zoomSpeed = 0f; // The t in the lerp when zoom levels of camera changes when switching between Player Modes (Army or Battle Modes)
 
     private Vector3 targetPosition; // The position the Camera is trying to get to, always tries to follow the player linearly
@@ -108,6 +110,8 @@ public class CameraController : MonoBehaviour
         {
             armyModeFOV += cameraZoomDeltaArrows * Time.deltaTime;
         }
+        armyModeFOV = Mathf.Max(minFOV, armyModeFOV); // Clamp the armyModeFOV to minimum FOV
+        armyModeFOV = Mathf.Min(maxFOV, armyModeFOV); // Clamp the armyModeFOV to maximum FOV
         cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, armyModeFOV, zoomSpeed); // Lerp the zoom level
     }
 

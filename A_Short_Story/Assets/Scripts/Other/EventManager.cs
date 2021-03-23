@@ -8,10 +8,13 @@ public class EventManager : MonoBehaviour
     public static event OnBarrackClick onBarrackClick; // When a barrack is clicked on by the Player
 
     public delegate void OnSelect();
-    public static event OnSelect onSelect; // When the Player selectes/left-clicks any object in the scene
+    public static event OnSelect onSelect; // When the Player selects/left-clicks any object in the scene
 
     public delegate void OnMove(float targetX);
-    public static event OnMove onMove;
+    public static event OnMove onMove; // When the player right-clicks anywhere on the screen, to tell all selected soldiers to move
+
+    public delegate void OnAttack(Transform targetTransform);
+    public static event OnAttack onAttack; // When the player tells selected soldiers to attack
 
     /// <summary>This event should be raised when the Player clicks on a Barrack</summary>
     public static void RaiseOnBarrackClick(Vector3 barrackPosition)
@@ -36,6 +39,14 @@ public class EventManager : MonoBehaviour
         if (onMove != null)
         {
             onMove(targetX);
+        }
+    }
+
+    public static void RaiseOnAttack(Transform targetTransform)
+    {
+        if (onAttack != null)
+        {
+            onAttack(targetTransform);
         }
     }
 }
