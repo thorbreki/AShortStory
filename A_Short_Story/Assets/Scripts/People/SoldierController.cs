@@ -9,7 +9,7 @@ public class SoldierController : MonoBehaviour
     [SerializeField] private GameObject selectedSprite; // The game object that shows wether a soldier is selected or not
     protected Animator soldierAnimator; // The Animator component of the soldier
     protected bool controlled = false; // If the soldier is controlled the player can take control, otherwise the person thinks freely
-    protected bool selected = false; // A boolean that specifies wether the soldier is selected or not
+    protected bool mouseDown = false; // A boolean that specifies wether the soldier was clicked on or not
 
     // Coroutine objects:
     protected Coroutine moveToCoroutine; // The object storing the MoveToCor coroutine
@@ -18,7 +18,7 @@ public class SoldierController : MonoBehaviour
     {
         soldierAnimator = soldierSpriteObject.GetComponent<Animator>(); // Get the Animator component of the child sprite object
         selectedSprite.SetActive(false);
-        EventManager.onSelect += OnSelect;
+        //EventManager.onSelect += OnSelect;
     }
 
     protected void OnDestroy()
@@ -27,16 +27,27 @@ public class SoldierController : MonoBehaviour
         EventManager.onMove -= OnMove;
     }
 
-    // WHEN PLAYER LEFT CLICKS ON THE SOLDIER, THE PLAYER CAN THEN TELL THE SOLDIER WHAT TO DO
-    protected void OnMouseUp()
+    protected void OnMouseDown()
     {
         if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
         {
-            selected = true; // Soldier becomes selected
+            mouseDown = true; // Specify that the soldier was indeed clicked on
+        }
+    }
+
+    // WHEN PLAYER LEFT CLICKS ON THE SOLDIER, THE PLAYER CAN THEN TELL THE SOLDIER WHAT TO DO
+    protected void OnMouseUp()
+    {
+        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army && mouseDown)
+        {
+
+            if (!Input.GetKey(KeyCode.LeftShift)) { EventManager.RaiseOnSelected(); } // Let other soldiers know that this one is selected if the player did not hold shift
             selectedSprite.SetActive(true);
-            EventManager.RaiseOnSelected(); // Let other soldiers know that this one is selected
+            
             EventManager.onSelect += OnSelect; // Start listening to when other game objects get selected
             EventManager.onMove += OnMove; // Start listening to when the Player wants to move this soldier
+
+            mouseDown = false; // The soldier is no longer clicked
 
             print("The spirit talks to me!"); // DEBUG
         }
@@ -96,8 +107,8 @@ public class SoldierController : MonoBehaviour
     /// </summary>
     protected void OnSelect()
     {
-        selected = false; // This soldier is not selected any more ;(
         EventManager.onSelect -= OnSelect; // Stop listening to the player selecting other objects since it doesn't matter
         EventManager.onMove -= OnMove; // Stop listening to the player wanting to move the soldier since the soldier is not selected anymore
+        selectedSprite.SetActive(false); // Deactivate the selected sprite, since this soldier isn't selected any more
     }
 }
