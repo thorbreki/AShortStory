@@ -28,6 +28,7 @@ public class SelectSoldiersSquareController : MonoBehaviour
 
     private void Die()
     {
+        GameManager.instance.SetSelectSoldierSquareShouldSpawn(false);
         Destroy(gameObject);
     }
 }

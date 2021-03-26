@@ -44,9 +44,13 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Vector3 squarePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            squarePosition.z = -1f;
-            Instantiate(selectSoldiersSquareObject, squarePosition, Quaternion.identity);
+            print("PLAYERCONTROLLER!");
+            if (GameManager.instance.GetSelectSoldierSquareShouldSpawn())
+            {
+                Vector3 squarePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                squarePosition.z = -1f;
+                Instantiate(selectSoldiersSquareObject, squarePosition, Quaternion.identity);
+            }
         }
     }
 

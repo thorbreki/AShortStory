@@ -5,20 +5,21 @@ using UnityEngine;
 public class SoldierController : MonoBehaviour
 {
     [SerializeField] protected float movementSpeed; // The movementSpeed of this soldier
-    [SerializeField] private GameObject soldierSpriteObject; // The GameObject that holds the sprite of the soldier
+    //[SerializeField] private GameObject soldierSpriteObject; // The GameObject that holds the sprite of the soldier
     [SerializeField] private GameObject selectedSprite; // The game object that shows wether a soldier is selected or not
     protected Animator soldierAnimator; // The Animator component of the soldier
     protected bool controlled = false; // If the soldier is controlled the player can take control, otherwise the person thinks freely
     protected bool mouseDown = false; // A boolean that specifies wether the soldier was clicked on or not
+    protected Transform parentTransform; // The Parent Transform of the soldier sprite
 
     // Coroutine objects:
     protected Coroutine moveToCoroutine; // The object storing the MoveToCor coroutine
 
     protected void Start()
     {
-        soldierAnimator = soldierSpriteObject.GetComponent<Animator>(); // Get the Animator component of the child sprite object
+        parentTransform = transform.parent;
+        soldierAnimator = gameObject.GetComponent<Animator>(); // Get the Animator component of the child sprite object
         selectedSprite.SetActive(false);
-        //EventManager.onSelect += OnSelect;
     }
 
     protected void OnDestroy()
@@ -52,19 +53,6 @@ public class SoldierController : MonoBehaviour
             print("The spirit talks to me!"); // DEBUG
         }
     }
-    // WHEN THE PLAYER RIGHT CLICKS ON A SOLDIER, THE PLAYER CAN THEN CONTROL THAT SOLDIER
-    protected void OnMouseOver()
-    {
-        // This is the best way I found to check for right clicking a soldier
-        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
-        {
-            if (Input.GetMouseButtonDown(1))
-            {
-                print("The spirit controls me!");
-                GameManager.instance.SetPlayerMode(Constants.PlayerMode.Battle); // Player Mode is then set to Battle Mode
-            }
-        }
-    }
 
     /// <summary>
     /// Moves the soldier to the specified position the Player wants
@@ -85,10 +73,10 @@ public class SoldierController : MonoBehaviour
         yield return null;
         while (Mathf.Abs(targetX - transform.position.x) > 0.05f)
         {
-            transform.Translate(direction * Time.deltaTime, 0f, 0f);
+            parentTransform.Translate(direction * Time.deltaTime, 0f, 0f);
             yield return null;
         }
-        transform.position = new Vector3(targetX, transform.position.y, transform.position.z);
+        parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
         soldierAnimator.SetBool("isWalking", false); // End The walking animation
     }
 
