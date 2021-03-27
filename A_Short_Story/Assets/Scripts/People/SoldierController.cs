@@ -9,7 +9,9 @@ public class SoldierController : MonoBehaviour
     [SerializeField] private GameObject selectedSprite; // The game object that shows wether a soldier is selected or not
     protected Animator soldierAnimator; // The Animator component of the soldier
     protected bool controlled = false; // If the soldier is controlled the player can take control, otherwise the person thinks freely
+    protected bool selected = false;
     protected bool mouseDown = false; // A boolean that specifies wether the soldier was clicked on or not
+    protected bool squareSelected = false; // Was the soldier selected with the select soldier square?
     protected Transform parentTransform; // The Parent Transform of the soldier sprite
 
     // Coroutine objects:
@@ -26,6 +28,7 @@ public class SoldierController : MonoBehaviour
     {
         EventManager.onSelect -= OnSelect;
         EventManager.onMove -= OnMove;
+        EventManager.onAttack -= OnAttack;
     }
 
     protected void OnMouseDown()
@@ -43,15 +46,40 @@ public class SoldierController : MonoBehaviour
         {
 
             if (!Input.GetKey(KeyCode.LeftShift)) { EventManager.RaiseOnSelected(); } // Let other soldiers know that this one is selected if the player did not hold shift
-            selectedSprite.SetActive(true);
-            
-            EventManager.onSelect += OnSelect; // Start listening to when other game objects get selected
-            EventManager.onMove += OnMove; // Start listening to when the Player wants to move this soldier
+
+            WhenSelected(); // Execute all basic stuff when soldier gets selected
 
             mouseDown = false; // The soldier is no longer clicked
 
             print("The spirit talks to me!"); // DEBUG
         }
+    }
+
+    protected void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.GetComponent<SelectSoldiersSquareController>() != null)
+        {
+            squareSelected = true; // Notify this soldier that the selection method was with the square select, so ignore next Selected event to not become unselected
+            WhenSelected(); // Execute all basic stuff when soldier gets selected
+
+            print("I have been touched by the select soldier square!"); // DEBUG
+            print("Square Selected OnTriggerEnter2D: " + squareSelected.ToString());
+        }
+    }
+
+    /// <summary>
+    /// Run this function to execute all the stuff that are always required when the soldier gets selected
+    /// </summary>
+    protected void WhenSelected()
+    {
+        EventManager.onSelect -= OnSelect; // Stop listening to when other game objects get selected
+        EventManager.onMove -= OnMove; // Stop listening to when the Player wants to move this soldier
+        EventManager.onAttack -= OnAttack;
+
+        selectedSprite.SetActive(true);
+        EventManager.onSelect += OnSelect; // Start listening to when other game objects get selected
+        EventManager.onMove += OnMove; // Start listening to when the Player wants to move this soldier
+        EventManager.onAttack += OnAttack;
     }
 
     /// <summary>
@@ -95,8 +123,22 @@ public class SoldierController : MonoBehaviour
     /// </summary>
     protected void OnSelect()
     {
-        EventManager.onSelect -= OnSelect; // Stop listening to the player selecting other objects since it doesn't matter
-        EventManager.onMove -= OnMove; // Stop listening to the player wanting to move the soldier since the soldier is not selected anymore
-        selectedSprite.SetActive(false); // Deactivate the selected sprite, since this soldier isn't selected any more
+        if (!squareSelected)
+        {
+            print("yo this runs for some reason!");
+            EventManager.onSelect -= OnSelect; // Stop listening to the player selecting other objects since it doesn't matter
+            EventManager.onMove -= OnMove; // Stop listening to the player wanting to move the soldier since the soldier is not selected anymore
+            EventManager.onAttack -= OnAttack; // Stop listening to the player wanting to attack enemy soldiers since the soldier is unselected
+            selectedSprite.SetActive(false); // Deactivate the selected sprite, since this soldier isn't selected any more
+        } else
+        {
+            squareSelected = false;
+        }
+        
+    }
+
+    protected void OnAttack(Transform targetTransform)
+    {
+
     }
 }
