@@ -101,10 +101,13 @@ public class SoldierController : MonoBehaviour
         yield return null;
         while (Mathf.Abs(targetX - transform.position.x) > 0.05f)
         {
-            parentTransform.Translate(direction * Time.deltaTime, 0f, 0f);
+            //parentTransform.Translate(direction * Time.deltaTime, 0f, 0f);
+            transform.Translate(direction * Time.deltaTime, 0f, 0f);
+
             yield return null;
         }
-        parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
+        //parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
+        transform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
         soldierAnimator.SetBool("isWalking", false); // End The walking animation
     }
 
