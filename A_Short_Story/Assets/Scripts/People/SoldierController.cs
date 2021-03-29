@@ -5,7 +5,7 @@ using UnityEngine;
 public class SoldierController : MonoBehaviour
 {
     [SerializeField] protected float movementSpeed; // The movementSpeed of this soldier
-    //[SerializeField] private GameObject soldierSpriteObject; // The GameObject that holds the sprite of the soldier
+    [SerializeField] protected float moveAwayDistance; // The distance I want to move from another soldier when we are invading each other's personal spaces
     [SerializeField] private GameObject selectedSprite; // The game object that shows wether a soldier is selected or not
     protected Animator soldierAnimator; // The Animator component of the soldier
     protected bool controlled = false; // If the soldier is controlled the player can take control, otherwise the person thinks freely
@@ -57,14 +57,42 @@ public class SoldierController : MonoBehaviour
 
     protected void OnTriggerEnter2D(Collider2D collision)
     {
+        // When the select soldier square hits me up
         if (collision.GetComponent<SelectSoldiersSquareController>() != null)
         {
             squareSelected = true; // Notify this soldier that the selection method was with the square select, so ignore next Selected event to not become unselected
             WhenSelected(); // Execute all basic stuff when soldier gets selected
-
-            print("I have been touched by the select soldier square!"); // DEBUG
-            print("Square Selected OnTriggerEnter2D: " + squareSelected.ToString());
         }
+    }
+
+    protected void OnTriggerStay2D(Collider2D collision)
+    {
+        // Must make sure that I'm not in any other fellow soldier's personal space. It is very important for one's mental health!
+        if (moveToCoroutine == null) // Only move from other soldier's if I'm idle
+        {
+            SoldierController otherSoldierController = collision.GetComponent<SoldierController>();
+            if (otherSoldierController != null) // If the "thing" I'm colliding with is actually a soldier
+            {
+                if (!otherSoldierController.isIdle()) { return; } // Don't do anything since the other soldier is already on a move and most definitely passing by
+
+                if (transform.position.x <= collision.transform.position.x) // If I am to the left of the other fellow soldier
+                {
+                    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
+                } else // If I am to the right of the other fellow soldier
+                {
+                    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x + moveAwayDistance));
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns wether this soldier is idle or not
+    /// </summary>
+    /// <returns>A boolean</returns>
+    public bool isIdle()
+    {
+        return moveToCoroutine == null;
     }
 
     /// <summary>
@@ -101,14 +129,13 @@ public class SoldierController : MonoBehaviour
         yield return null;
         while (Mathf.Abs(targetX - transform.position.x) > 0.05f)
         {
-            //parentTransform.Translate(direction * Time.deltaTime, 0f, 0f);
-            transform.Translate(direction * Time.deltaTime, 0f, 0f);
+            parentTransform.Translate(direction * Time.deltaTime, 0f, 0f);
 
             yield return null;
         }
-        //parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
-        transform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
+        parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
         soldierAnimator.SetBool("isWalking", false); // End The walking animation
+        moveToCoroutine = null; // Set the coroutine object for this coroutine to null since this coroutine has ended
     }
 
     /// <summary>
