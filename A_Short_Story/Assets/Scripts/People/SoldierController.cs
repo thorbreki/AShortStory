@@ -6,22 +6,54 @@ public class SoldierController : MonoBehaviour
 {
     [SerializeField] protected float movementSpeed; // The movementSpeed of this soldier
     [SerializeField] protected float moveAwayDistance; // The distance I want to move from another soldier when we are invading each other's personal spaces
+    [SerializeField] protected float height = 0.5f; // My height
     [SerializeField] private GameObject selectedSprite; // The game object that shows wether a soldier is selected or not
+    [SerializeField] private LayerMask gravityLayerMask; // The layermask for the gravity raycast
     protected Animator soldierAnimator; // The Animator component of the soldier
     protected bool controlled = false; // If the soldier is controlled the player can take control, otherwise the person thinks freely
     protected bool selected = false;
     protected bool mouseDown = false; // A boolean that specifies wether the soldier was clicked on or not
     protected bool squareSelected = false; // Was the soldier selected with the select soldier square?
     protected Transform parentTransform; // The Parent Transform of the soldier sprite
+    protected float currGravityStrength; // The current strength of gravity I am experiencing
+
+    // A vector that I can use for whatever:
+    protected Vector3 vector;
 
     // Coroutine objects:
     protected Coroutine moveToCoroutine; // The object storing the MoveToCor coroutine
+    protected Coroutine dragCoroutine; // The object storing the DragCor coroutine
+    protected Coroutine gravitySlerpCoroutine; // The object storing the GravitySlerp coroutine
 
     protected void Start()
     {
         parentTransform = transform.parent;
         soldierAnimator = gameObject.GetComponent<Animator>(); // Get the Animator component of the child sprite object
         selectedSprite.SetActive(false);
+    }
+
+    protected void Update()
+    {
+        HandleGravity();
+    }
+
+    protected void HandleGravity()
+    {
+        RaycastHit2D hitinfo = Physics2D.Raycast(parentTransform.position, Vector2.down, 100f, gravityLayerMask);
+        if (!hitinfo) { return; } // Not hitting anything, so I'm not going to do anything
+        if (parentTransform.position.y - hitinfo.point.y <= 0.5) // When I'm grounded
+        {
+            vector.x = parentTransform.position.x;
+            vector.z = parentTransform.position.z;
+            vector.y = hitinfo.point.y + height; // Thats the current height of the soldier, maybe will have to change it later on
+            currGravityStrength = 0f;
+            return;
+        } 
+
+        // Since I am not grounded, its time for me to fall down
+        if (gravitySlerpCoroutine == null) { gravitySlerpCoroutine = StartCoroutine(GravitySlerpCor(hitinfo)); }
+        
+
     }
 
     protected void OnDestroy()
@@ -36,6 +68,10 @@ public class SoldierController : MonoBehaviour
         if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
         {
             mouseDown = true; // Specify that the soldier was indeed clicked on
+
+            // Drag the soldier around!
+            if (dragCoroutine != null) { StopCoroutine(dragCoroutine); }
+            dragCoroutine = StartCoroutine(DragCor());
         }
     }
 
@@ -67,6 +103,7 @@ public class SoldierController : MonoBehaviour
 
     protected void OnTriggerStay2D(Collider2D collision)
     {
+        print("OnTriggerStay colliding with: " + collision.name);
         // Must make sure that I'm not in any other fellow soldier's personal space. It is very important for one's mental health!
         if (moveToCoroutine == null) // Only move from other soldier's if I'm idle
         {
@@ -136,6 +173,44 @@ public class SoldierController : MonoBehaviour
         parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
         soldierAnimator.SetBool("isWalking", false); // End The walking animation
         moveToCoroutine = null; // Set the coroutine object for this coroutine to null since this coroutine has ended
+    }
+
+    /// <summary>
+    /// Smoothly Lerps the soldier to the mouse's position, so the player can move this soldier around however the tides turn
+    /// </summary>
+    /// <returns></returns>
+    protected IEnumerator DragCor()
+    {
+        Vector3 targetPosition = Vector3.zero;
+        while (!Input.GetMouseButtonUp(0))
+        {
+            targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); // Calculate the targetPosition
+            targetPosition.z = parentTransform.position.z; // Make sure that the targetPosition doesn't change the z-value
+            parentTransform.position = Vector3.Lerp(parentTransform.position, targetPosition, 0.2f); // Move the parent's transform since the sprite child cannot be moved
+            print("targetPosition: " + targetPosition);
+            yield return null;
+        }
+        print("DragCor has ended!");
+    }
+
+    protected IEnumerator GravitySlerpCor(RaycastHit2D hitInfo)
+    {
+        print("GravitySlerpCor started!");
+        Vector3 targetPosition = new Vector3(parentTransform.position.x, hitInfo.point.y + (height / 2), parentTransform.position.z); // Find the target position, which is straight down but should be half the height up
+        Vector3 startingPosition = parentTransform.position; // The position of me when I start falling down
+        float t = 0f; // The t in the Lerping function
+        float distance = startingPosition.y - targetPosition.y; // The distance I will have to travel downwards to the ground
+        while (t < 0.99f)
+        {
+            parentTransform.position = Vector3.Lerp(startingPosition, targetPosition, t);
+            t += Time.deltaTime * GameManager.instance.GetGravity() / distance; // t increases with deltaTime times the gravity of the game, but I divide by distance so the speed of falling down is always the same no matter the distance
+            yield return null;
+        }
+
+        // When I have fallen down, position me correctly and set the coroutine object to null to allow me to fall once again
+        parentTransform.position = targetPosition;
+        gravitySlerpCoroutine = null;
+        print("GravitySlerpCor has ended!");
     }
 
     /// <summary>

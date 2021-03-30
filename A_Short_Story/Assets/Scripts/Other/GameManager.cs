@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance; // The singleton GameManager instance
 
     // PUBLIC VARIABLES
+    [SerializeField] private float gravity; // The strength of the gravity in the game
     private Constants.PlayerMode playerMode; // This is the variable that chooses what Player Mode is ongoing
     private bool selectSoldierSquareShouldSpawn; // This variable lets the PlayerController know if the select soldier square should be spawned or not
 
@@ -22,6 +23,15 @@ public class GameManager : MonoBehaviour
     // -------------------------------------------------------------------
     // G E T T E R S
 
+    /// <summary>
+    /// Returns the strength of the gravity of the game
+    /// </summary>
+    /// <returns>gravity</returns>
+    public float GetGravity()
+    {
+        return gravity;
+    }
+    
     /// <summary>
     /// A getter for the game's current Player Mode
     /// </summary>

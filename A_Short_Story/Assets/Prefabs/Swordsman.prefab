@@ -426,6 +426,9 @@ MonoBehaviour:
   movementSpeed: 2.3
   moveAwayDistance: 0.6
   selectedSprite: {fileID: 4127823743843510949}
+  gravityLayerMask:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!50 &2413520996164858351
 Rigidbody2D:
   serializedVersion: 4
