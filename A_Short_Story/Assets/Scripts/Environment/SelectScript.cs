@@ -6,7 +6,6 @@ public class SelectScript : MonoBehaviour
 {
     private void OnMouseDown()
     {
-        print("ONMOUSEDOWN!");
         GameManager.instance.SetSelectSoldierSquareShouldSpawn(true); // Let player know that the select soldier square can be spawned
     }
 

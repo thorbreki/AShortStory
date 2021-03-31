@@ -8,14 +8,16 @@ public class SoldierController : MonoBehaviour
     [SerializeField] protected float moveAwayDistance; // The distance I want to move from another soldier when we are invading each other's personal spaces
     [SerializeField] protected float height = 0.5f; // My height
     [SerializeField] private GameObject selectedSprite; // The game object that shows wether a soldier is selected or not
-    [SerializeField] private LayerMask gravityLayerMask; // The layermask for the gravity raycast
+    [SerializeField] protected float gravityScale = 2f; // The gravityScale for this soldier
+    [SerializeField] protected float attackDistance = 0.8f; // The distance I want to be from an enemy when I start attacking that enemy
     protected Animator soldierAnimator; // The Animator component of the soldier
+    protected Rigidbody2D parentRigidbody; // The rigidbody component of the parent
     protected bool controlled = false; // If the soldier is controlled the player can take control, otherwise the person thinks freely
     protected bool selected = false;
     protected bool mouseDown = false; // A boolean that specifies wether the soldier was clicked on or not
     protected bool squareSelected = false; // Was the soldier selected with the select soldier square?
+    protected bool isIdle = true; // Am I just standing still, minding my own business?
     protected Transform parentTransform; // The Parent Transform of the soldier sprite
-    protected float currGravityStrength; // The current strength of gravity I am experiencing
 
     // A vector that I can use for whatever:
     protected Vector3 vector;
@@ -23,36 +25,17 @@ public class SoldierController : MonoBehaviour
     // Coroutine objects:
     protected Coroutine moveToCoroutine; // The object storing the MoveToCor coroutine
     protected Coroutine dragCoroutine; // The object storing the DragCor coroutine
-    protected Coroutine gravitySlerpCoroutine; // The object storing the GravitySlerp coroutine
+    protected Coroutine attackCoroutine; // The object storing the AttackCor coroutine
 
     protected void Start()
     {
-        parentTransform = transform.parent;
+        parentTransform = transform.parent; // Set the parentTransform
         soldierAnimator = gameObject.GetComponent<Animator>(); // Get the Animator component of the child sprite object
-        selectedSprite.SetActive(false);
-    }
+        parentRigidbody = transform.parent.GetComponent<Rigidbody2D>(); // Set the rigidbody component of the parent
+        selectedSprite.SetActive(false); // Set the selected sprite inactive by default
 
-    protected void Update()
-    {
-        HandleGravity();
-    }
-
-    protected void HandleGravity()
-    {
-        RaycastHit2D hitinfo = Physics2D.Raycast(parentTransform.position, Vector2.down, 100f, gravityLayerMask);
-        if (!hitinfo) { return; } // Not hitting anything, so I'm not going to do anything
-        if (parentTransform.position.y - hitinfo.point.y <= 0.5) // When I'm grounded
-        {
-            vector.x = parentTransform.position.x;
-            vector.z = parentTransform.position.z;
-            vector.y = hitinfo.point.y + height; // Thats the current height of the soldier, maybe will have to change it later on
-            currGravityStrength = 0f;
-            return;
-        } 
-
-        // Since I am not grounded, its time for me to fall down
-        if (gravitySlerpCoroutine == null) { gravitySlerpCoroutine = StartCoroutine(GravitySlerpCor(hitinfo)); }
-        
+        // setting stuff up
+        parentRigidbody.gravityScale = gravityScale;
 
     }
 
@@ -86,8 +69,6 @@ public class SoldierController : MonoBehaviour
             WhenSelected(); // Execute all basic stuff when soldier gets selected
 
             mouseDown = false; // The soldier is no longer clicked
-
-            print("The spirit talks to me!"); // DEBUG
         }
     }
 
@@ -103,14 +84,14 @@ public class SoldierController : MonoBehaviour
 
     protected void OnTriggerStay2D(Collider2D collision)
     {
-        print("OnTriggerStay colliding with: " + collision.name);
+        //print("OnTriggerStay colliding with: " + collision.name);
         // Must make sure that I'm not in any other fellow soldier's personal space. It is very important for one's mental health!
         if (moveToCoroutine == null) // Only move from other soldier's if I'm idle
         {
             SoldierController otherSoldierController = collision.GetComponent<SoldierController>();
             if (otherSoldierController != null) // If the "thing" I'm colliding with is actually a soldier
             {
-                if (!otherSoldierController.isIdle()) { return; } // Don't do anything since the other soldier is already on a move and most definitely passing by
+                if (!otherSoldierController.GetIsIdle()) { return; } // Don't do anything since the other soldier is already on a move and most definitely passing by
 
                 if (transform.position.x <= collision.transform.position.x) // If I am to the left of the other fellow soldier
                 {
@@ -127,9 +108,9 @@ public class SoldierController : MonoBehaviour
     /// Returns wether this soldier is idle or not
     /// </summary>
     /// <returns>A boolean</returns>
-    public bool isIdle()
+    public bool GetIsIdle()
     {
-        return moveToCoroutine == null;
+        return isIdle;
     }
 
     /// <summary>
@@ -154,6 +135,7 @@ public class SoldierController : MonoBehaviour
     /// <returns></returns>
     protected IEnumerator MoveToCor(float targetX)
     {
+        isIdle = false; // I'm not idle when walking
         soldierAnimator.SetBool("isWalking", true); // Start The walking animation
         float direction;
         if (targetX - transform.position.x > 0)
@@ -172,7 +154,55 @@ public class SoldierController : MonoBehaviour
         }
         parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
         soldierAnimator.SetBool("isWalking", false); // End The walking animation
+        isIdle = true; // Idle yet again!
         moveToCoroutine = null; // Set the coroutine object for this coroutine to null since this coroutine has ended
+    }
+
+    protected IEnumerator AttackCor(Transform targetTransform)
+    {
+        print("AttackCor started!");
+        isIdle = false; // I'm not idle when attacking
+
+        // The loop runs until the enemy has been dealt with
+        while (targetTransform != null)
+        {
+            // This code runs when I am too far away from the enemy to attack
+            if (Vector2.Distance(transform.position, targetTransform.position) > attackDistance)
+            {
+                print(Vector2.Distance(transform.position, targetTransform.position));
+                soldierAnimator.SetBool("isWalking", true); // Start the walking animation
+                MoveStep(targetTransform);
+            }
+
+            // This code runs when I am close enough to my target to attack
+            else
+            {
+                soldierAnimator.SetBool("isWalking", false);
+            }
+            yield return null;
+        }
+        
+
+        soldierAnimator.SetBool("isWalking", false); // No longer need to move
+        isIdle = true; // Idle yet again
+        //attackCoroutine = null; // Since this coroutine is finished
+        print("AttackCor finished!");
+    }
+
+    protected void MoveStep(Transform targetTransform)
+    {
+        // First find out if I want to go to the left or to the right
+        float direction;
+        if (targetTransform.position.x - transform.position.x > 0)
+        {
+            direction = movementSpeed;
+        } else
+        {
+            direction = -movementSpeed;
+        }
+
+        // Then move a little closer to my prey
+        parentTransform.Translate(direction * Time.deltaTime, 0f, 0f);
     }
 
     /// <summary>
@@ -181,36 +211,21 @@ public class SoldierController : MonoBehaviour
     /// <returns></returns>
     protected IEnumerator DragCor()
     {
+        if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); } // Since the god is dragging me around, I should definitely stop trying to go where I was to go
+        parentRigidbody.gravityScale = 0f; // No gravity while I'm being tossed around by the god
+        isIdle = false; // I am not idle while the god is tossing me around
+        
         Vector3 targetPosition = Vector3.zero;
         while (!Input.GetMouseButtonUp(0))
         {
             targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); // Calculate the targetPosition
             targetPosition.z = parentTransform.position.z; // Make sure that the targetPosition doesn't change the z-value
             parentTransform.position = Vector3.Lerp(parentTransform.position, targetPosition, 0.2f); // Move the parent's transform since the sprite child cannot be moved
-            print("targetPosition: " + targetPosition);
             yield return null;
         }
+        parentRigidbody.gravityScale = gravityScale;
+        isIdle = true; // I'm idle yet again!
         print("DragCor has ended!");
-    }
-
-    protected IEnumerator GravitySlerpCor(RaycastHit2D hitInfo)
-    {
-        print("GravitySlerpCor started!");
-        Vector3 targetPosition = new Vector3(parentTransform.position.x, hitInfo.point.y + (height / 2), parentTransform.position.z); // Find the target position, which is straight down but should be half the height up
-        Vector3 startingPosition = parentTransform.position; // The position of me when I start falling down
-        float t = 0f; // The t in the Lerping function
-        float distance = startingPosition.y - targetPosition.y; // The distance I will have to travel downwards to the ground
-        while (t < 0.99f)
-        {
-            parentTransform.position = Vector3.Lerp(startingPosition, targetPosition, t);
-            t += Time.deltaTime * GameManager.instance.GetGravity() / distance; // t increases with deltaTime times the gravity of the game, but I divide by distance so the speed of falling down is always the same no matter the distance
-            yield return null;
-        }
-
-        // When I have fallen down, position me correctly and set the coroutine object to null to allow me to fall once again
-        parentTransform.position = targetPosition;
-        gravitySlerpCoroutine = null;
-        print("GravitySlerpCor has ended!");
     }
 
     /// <summary>
@@ -230,7 +245,6 @@ public class SoldierController : MonoBehaviour
     {
         if (!squareSelected)
         {
-            print("yo this runs for some reason!");
             EventManager.onSelect -= OnSelect; // Stop listening to the player selecting other objects since it doesn't matter
             EventManager.onMove -= OnMove; // Stop listening to the player wanting to move the soldier since the soldier is not selected anymore
             EventManager.onAttack -= OnAttack; // Stop listening to the player wanting to attack enemy soldiers since the soldier is unselected
@@ -244,6 +258,8 @@ public class SoldierController : MonoBehaviour
 
     protected void OnAttack(Transform targetTransform)
     {
-
+        if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
+        if (attackCoroutine != null) { StopCoroutine(attackCoroutine); } // Stop attacking someone else and focus on my new target
+        attackCoroutine = StartCoroutine(AttackCor(targetTransform));
     }
 }

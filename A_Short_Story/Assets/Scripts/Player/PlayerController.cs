@@ -44,7 +44,6 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            print("PLAYERCONTROLLER!");
             if (GameManager.instance.GetSelectSoldierSquareShouldSpawn())
             {
                 Vector3 squarePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
