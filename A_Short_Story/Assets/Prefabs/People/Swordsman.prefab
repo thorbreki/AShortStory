@@ -428,7 +428,7 @@ MonoBehaviour:
   height: 0.5
   selectedSprite: {fileID: 4127823743843510949}
   gravityScale: 2
-  attackDistance: 5
+  attackDistance: 2
 --- !u!50 &8929390030322741963
 Rigidbody2D:
   serializedVersion: 4

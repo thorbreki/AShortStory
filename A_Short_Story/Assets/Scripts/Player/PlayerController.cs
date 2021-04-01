@@ -32,8 +32,15 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1))
         {
-            EventManager.RaiseOnMove(Camera.main.ScreenToWorldPoint(Input.mousePosition).x);
-            print("Raised the move event!");
+            if (GameManager.instance.GetOnMoveShouldBeRaised())
+            {
+                EventManager.RaiseOnMove(Camera.main.ScreenToWorldPoint(Input.mousePosition).x);
+                print("Raised the move event!");
+            } else
+            {
+                GameManager.instance.SetOnMoveShouldBeRaised(true); // Set it otherwise to true since that should be the default value
+            }
+            
         }
     }
 

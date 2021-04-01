@@ -86,7 +86,7 @@ public class SoldierController : MonoBehaviour
     {
         //print("OnTriggerStay colliding with: " + collision.name);
         // Must make sure that I'm not in any other fellow soldier's personal space. It is very important for one's mental health!
-        if (moveToCoroutine == null) // Only move from other soldier's if I'm idle
+        if (isIdle) // Only move from other soldier's if I'm idle
         {
             SoldierController otherSoldierController = collision.GetComponent<SoldierController>();
             if (otherSoldierController != null) // If the "thing" I'm colliding with is actually a soldier
@@ -169,7 +169,6 @@ public class SoldierController : MonoBehaviour
             // This code runs when I am too far away from the enemy to attack
             if (Vector2.Distance(transform.position, targetTransform.position) > attackDistance)
             {
-                print(Vector2.Distance(transform.position, targetTransform.position));
                 soldierAnimator.SetBool("isWalking", true); // Start the walking animation
                 MoveStep(targetTransform);
             }
@@ -185,7 +184,6 @@ public class SoldierController : MonoBehaviour
 
         soldierAnimator.SetBool("isWalking", false); // No longer need to move
         isIdle = true; // Idle yet again
-        //attackCoroutine = null; // Since this coroutine is finished
         print("AttackCor finished!");
     }
 
@@ -211,7 +209,7 @@ public class SoldierController : MonoBehaviour
     /// <returns></returns>
     protected IEnumerator DragCor()
     {
-        if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); } // Since the god is dragging me around, I should definitely stop trying to go where I was to go
+        StopSoldierCoroutines(); // Stop all current coroutines so the god can toss me around as they please
         parentRigidbody.gravityScale = 0f; // No gravity while I'm being tossed around by the god
         isIdle = false; // I am not idle while the god is tossing me around
         
@@ -234,6 +232,7 @@ public class SoldierController : MonoBehaviour
     protected void OnMove(float targetX)
     {
         if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); } // Make sure that no other instances of move coroutine are active
+        if (attackCoroutine != null) { StopCoroutine(attackCoroutine); } // I should definitely stop attacking and go to where the god wants me to
 
         moveToCoroutine = StartCoroutine(MoveToCor(targetX)); // Start the move to coroutine and store the object for future checks
     }
@@ -261,5 +260,15 @@ public class SoldierController : MonoBehaviour
         if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); } // Stop attacking someone else and focus on my new target
         attackCoroutine = StartCoroutine(AttackCor(targetTransform));
+    }
+
+    /// <summary>
+    /// This bad boy stops all soldier-specific coroutines so I can have a clear mind when the god tells me what to do
+    /// </summary>
+    protected void StopSoldierCoroutines()
+    {
+        if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
+        if (attackCoroutine != null) { StopCoroutine(attackCoroutine); }
+        if (dragCoroutine != null) { StopCoroutine(dragCoroutine); }
     }
 }
