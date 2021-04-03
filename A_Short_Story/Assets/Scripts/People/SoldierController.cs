@@ -4,20 +4,37 @@ using UnityEngine;
 
 public class SoldierController : MonoBehaviour
 {
+    // MOVEMENT
+    [Header("Movement")] 
     [SerializeField] protected float movementSpeed; // The movementSpeed of this soldier
     [SerializeField] protected float moveAwayDistance; // The distance I want to move from another soldier when we are invading each other's personal spaces
-    [SerializeField] protected float height = 0.5f; // My height
-    [SerializeField] private GameObject selectedSprite; // The game object that shows wether a soldier is selected or not
-    [SerializeField] protected float gravityScale = 2f; // The gravityScale for this soldier
+
+    // ATTACK
+    [Header("Attack")]
     [SerializeField] protected float attackDistance = 0.8f; // The distance I want to be from an enemy when I start attacking that enemy
+    protected Transform focusedEnemyTransform; // The enemy's transform component that I am focused on
+
+    // CONNECTED GAME OBJECTS AND COMPONENTS
+    [Header("Connected game objects and components")]
+    [SerializeField] private GameObject selectedSprite; // The game object that shows wether a soldier is selected or not
     protected Animator soldierAnimator; // The Animator component of the soldier
     protected Rigidbody2D parentRigidbody; // The rigidbody component of the parent
+    protected Transform parentTransform; // The Parent Transform of the soldier sprite
+
+    // PHYSICS
+    [Header("Physics")]
+    [SerializeField] protected float gravityScale = 2f; // The gravityScale for this soldier
+
+    // GENERAL ATTRIBUTES
+    [Header("General Attributes")]
+    [SerializeField] protected float height = 0.5f; // My height
+
+    // Status booleans
     protected bool controlled = false; // If the soldier is controlled the player can take control, otherwise the person thinks freely
     protected bool selected = false;
     protected bool mouseDown = false; // A boolean that specifies wether the soldier was clicked on or not
     protected bool squareSelected = false; // Was the soldier selected with the select soldier square?
     protected bool isIdle = true; // Am I just standing still, minding my own business?
-    protected Transform parentTransform; // The Parent Transform of the soldier sprite
 
     // A vector that I can use for whatever:
     protected Vector3 vector;
@@ -26,6 +43,20 @@ public class SoldierController : MonoBehaviour
     protected Coroutine moveToCoroutine; // The object storing the MoveToCor coroutine
     protected Coroutine dragCoroutine; // The object storing the DragCor coroutine
     protected Coroutine attackCoroutine; // The object storing the AttackCor coroutine
+
+    // Animation stuff:
+    protected enum animationStatus // The different options for the status of the soldier's animator that are also indices to the animationStatusArray
+    {
+        isWalking = 0,
+        isAttacking = 1,
+        isIdle = 69
+    }
+
+    private string[] animationStatusArray = new string[2] // An array that contains all different booleans in the soldier's animator 
+    {
+        animationStatus.isWalking.ToString(),
+        animationStatus.isAttacking.ToString()
+    };
 
     protected void Start()
     {
@@ -136,7 +167,8 @@ public class SoldierController : MonoBehaviour
     protected IEnumerator MoveToCor(float targetX)
     {
         isIdle = false; // I'm not idle when walking
-        soldierAnimator.SetBool("isWalking", true); // Start The walking animation
+        //soldierAnimator.SetBool("isWalking", true); // Start The walking animation
+        SetAnimationStatus(animationStatus.isWalking);
         float direction;
         if (targetX - transform.position.x > 0)
         {
@@ -153,7 +185,8 @@ public class SoldierController : MonoBehaviour
             yield return null;
         }
         parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
-        soldierAnimator.SetBool("isWalking", false); // End The walking animation
+        //soldierAnimator.SetBool("isWalking", false); // End The walking animation
+        SetAnimationStatus(animationStatus.isIdle);
         isIdle = true; // Idle yet again!
         moveToCoroutine = null; // Set the coroutine object for this coroutine to null since this coroutine has ended
     }
@@ -162,6 +195,7 @@ public class SoldierController : MonoBehaviour
     {
         print("AttackCor started!");
         isIdle = false; // I'm not idle when attacking
+        focusedEnemyTransform = targetTransform; // Set the transform so other methods know what enemy they are supposed to interact with
 
         // The loop runs until the enemy has been dealt with
         while (targetTransform != null)
@@ -169,20 +203,24 @@ public class SoldierController : MonoBehaviour
             // This code runs when I am too far away from the enemy to attack
             if (Vector2.Distance(transform.position, targetTransform.position) > attackDistance)
             {
-                soldierAnimator.SetBool("isWalking", true); // Start the walking animation
+                //soldierAnimator.SetBool("isWalking", true); // Start the walking animation
+                SetAnimationStatus(animationStatus.isWalking);
                 MoveStep(targetTransform);
             }
 
             // This code runs when I am close enough to my target to attack
             else
             {
-                soldierAnimator.SetBool("isWalking", false);
+                //soldierAnimator.SetBool("isWalking", false);
+                SetAnimationStatus(animationStatus.isAttacking);
             }
             yield return null;
         }
-        
 
-        soldierAnimator.SetBool("isWalking", false); // No longer need to move
+
+        //soldierAnimator.SetBool("isWalking", false); // No longer need to move
+        SetAnimationStatus(animationStatus.isIdle);
+        focusedEnemyTransform = null; // I shouldn't focus on the enemy anymore since they're dead, hurray!
         isIdle = true; // Idle yet again
         print("AttackCor finished!");
     }
@@ -227,6 +265,26 @@ public class SoldierController : MonoBehaviour
     }
 
     /// <summary>
+    /// Sets the animator booleans to respective values according to the status that is given as parameter
+    /// </summary>
+    /// <param name="newStatus"></param>
+    protected void SetAnimationStatus(animationStatus newStatus)
+    {
+        int newStatusInt = (int)newStatus; // The new animation status integerized
+
+        for (int i = 0; i < animationStatusArray.Length; i++)
+        {
+            if (i == newStatusInt)
+            {
+                soldierAnimator.SetBool(animationStatusArray[i], true);
+            } else
+            {
+                soldierAnimator.SetBool(animationStatusArray[i], false);
+            }
+        }
+    }
+
+    /// <summary>
     /// This function executes when the player tells a soldier to move to a specific postition
     /// </summary>
     protected void OnMove(float targetX)
@@ -260,6 +318,14 @@ public class SoldierController : MonoBehaviour
         if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); } // Stop attacking someone else and focus on my new target
         attackCoroutine = StartCoroutine(AttackCor(targetTransform));
+    }
+
+    /// <summary>
+    /// Damage the enemy I am focused on, this method runs when attack animation event occurs
+    /// </summary>
+    public void DamageEnemy()
+    {
+        // TODO: DAMAGE ENEMY IN THIS METHOD!
     }
 
     /// <summary>
