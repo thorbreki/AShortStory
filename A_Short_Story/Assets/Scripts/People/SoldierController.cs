@@ -323,7 +323,7 @@ public class SoldierController : MonoBehaviour
     /// <summary>
     /// Damage the enemy I am focused on, this method runs when attack animation event occurs
     /// </summary>
-    public void DamageEnemy()
+    public virtual void DamageEnemy()
     {
         // TODO: DAMAGE ENEMY IN THIS METHOD!
     }
