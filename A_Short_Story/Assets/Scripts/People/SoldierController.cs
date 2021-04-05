@@ -119,7 +119,6 @@ public class SoldierController : MonoBehaviour
     /// <param name="collision"></param>
     protected void OnTriggerStay2D(Collider2D collision)
     {
-        //print("OnTriggerStay colliding with: " + collision.name);
         // Must make sure that I'm not in any other fellow soldier's personal space. It is very important for one's mental health!
         if (doNotDisturb) // Only move from other soldier's if I'm idle
         {
