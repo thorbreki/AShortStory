@@ -13,6 +13,7 @@ public class SwordsmanController : SoldierController
     /// </summary>
     public override void DamageEnemy()
     {
+        if (focusedEnemyTransform == null) { return; } // If the enemy transform doesnt exist anymore than I'm not doing crap!
         EnemyController enemyController = focusedEnemyTransform.GetComponent<EnemyController>();
         if (enemyController != null) // Paranoid check
         {

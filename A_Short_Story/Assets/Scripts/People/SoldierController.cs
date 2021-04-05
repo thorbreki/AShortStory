@@ -34,7 +34,7 @@ public class SoldierController : MonoBehaviour
     protected bool selected = false;
     protected bool mouseDown = false; // A boolean that specifies wether the soldier was clicked on or not
     protected bool squareSelected = false; // Was the soldier selected with the select soldier square?
-    protected bool isIdle = true; // Am I just standing still, minding my own business?
+    protected bool doNotDisturb = true; // Am I just standing still, minding my own business?
 
     // A vector that I can use for whatever:
     protected Vector3 vector;
@@ -113,18 +113,39 @@ public class SoldierController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// This is a function that currently only moves me from other soldiers if I am invading their personal space
+    /// </summary>
+    /// <param name="collision"></param>
     protected void OnTriggerStay2D(Collider2D collision)
     {
         //print("OnTriggerStay colliding with: " + collision.name);
         // Must make sure that I'm not in any other fellow soldier's personal space. It is very important for one's mental health!
-        if (isIdle) // Only move from other soldier's if I'm idle
+        if (doNotDisturb) // Only move from other soldier's if I'm idle
         {
             SoldierController otherSoldierController = collision.GetComponent<SoldierController>();
             if (otherSoldierController != null) // If the "thing" I'm colliding with is actually a soldier
             {
-                if (!otherSoldierController.GetIsIdle()) { return; } // Don't do anything since the other soldier is already on a move and most definitely passing by
+                Transform otherSoldierEnemy = otherSoldierController.GetFocusedEnemyTransform(); // The enemy the other soldier is focused on
 
-                if (transform.position.x <= collision.transform.position.x) // If I am to the left of the other fellow soldier
+                if (!otherSoldierController.GetDoNotDisturb()) { return; } // Don't do anything since the other soldier is already on a move and most definitely passing by
+
+                // Stop trying to move and attack, I am obviously in the way of someone else
+                if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
+                if (attackCoroutine != null) { StopCoroutine(attackCoroutine); }
+
+
+                if (otherSoldierEnemy != null) // The other soldier is battling an enemy so I should go the opposite direction
+                {
+                    if (otherSoldierEnemy.position.x > otherSoldierController.transform.position.x) // If the enemy is to the right of the other soldier
+                    {
+                        moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
+                    } else // The enemy is to the left of the other soldier
+                    {
+                        moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x + moveAwayDistance));
+                    }
+                }
+                else if (transform.position.x <= collision.transform.position.x) // If I am to the left of the other fellow soldier
                 {
                     moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
                 } else // If I am to the right of the other fellow soldier
@@ -139,9 +160,18 @@ public class SoldierController : MonoBehaviour
     /// Returns wether this soldier is idle or not
     /// </summary>
     /// <returns>A boolean</returns>
-    public bool GetIsIdle()
+    public bool GetDoNotDisturb()
     {
-        return isIdle;
+        return doNotDisturb;
+    }
+
+    /// <summary>
+    /// Returns the Transform that I am currently trying to engage in chivalrous combat with
+    /// </summary>
+    /// <returns></returns>
+    public Transform GetFocusedEnemyTransform()
+    {
+        return focusedEnemyTransform;
     }
 
     /// <summary>
@@ -166,7 +196,7 @@ public class SoldierController : MonoBehaviour
     /// <returns></returns>
     protected IEnumerator MoveToCor(float targetX)
     {
-        isIdle = false; // I'm not idle when walking
+        doNotDisturb = false; // I'm not idle when walking
         //soldierAnimator.SetBool("isWalking", true); // Start The walking animation
         SetAnimationStatus(animationStatus.isWalking);
         float direction;
@@ -187,14 +217,13 @@ public class SoldierController : MonoBehaviour
         parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
         //soldierAnimator.SetBool("isWalking", false); // End The walking animation
         SetAnimationStatus(animationStatus.isIdle);
-        isIdle = true; // Idle yet again!
+        doNotDisturb = true; // Idle yet again!
         moveToCoroutine = null; // Set the coroutine object for this coroutine to null since this coroutine has ended
     }
 
     protected IEnumerator AttackCor(Transform targetTransform)
     {
         print("AttackCor started!");
-        isIdle = false; // I'm not idle when attacking
         focusedEnemyTransform = targetTransform; // Set the transform so other methods know what enemy they are supposed to interact with
 
         // The loop runs until the enemy has been dealt with
@@ -203,7 +232,7 @@ public class SoldierController : MonoBehaviour
             // This code runs when I am too far away from the enemy to attack
             if (Vector2.Distance(transform.position, targetTransform.position) > attackDistance)
             {
-                //soldierAnimator.SetBool("isWalking", true); // Start the walking animation
+                doNotDisturb = false; // I'm not idle when walking
                 SetAnimationStatus(animationStatus.isWalking);
                 MoveStep(targetTransform);
             }
@@ -211,7 +240,7 @@ public class SoldierController : MonoBehaviour
             // This code runs when I am close enough to my target to attack
             else
             {
-                //soldierAnimator.SetBool("isWalking", false);
+                doNotDisturb = true; // I am not to be disturbed when battling a dangerous foe!
                 SetAnimationStatus(animationStatus.isAttacking);
             }
             yield return null;
@@ -221,7 +250,7 @@ public class SoldierController : MonoBehaviour
         //soldierAnimator.SetBool("isWalking", false); // No longer need to move
         SetAnimationStatus(animationStatus.isIdle);
         focusedEnemyTransform = null; // I shouldn't focus on the enemy anymore since they're dead, hurray!
-        isIdle = true; // Idle yet again
+        doNotDisturb = true; // Idle yet again
         print("AttackCor finished!");
     }
 
@@ -249,7 +278,7 @@ public class SoldierController : MonoBehaviour
     {
         StopSoldierCoroutines(); // Stop all current coroutines so the god can toss me around as they please
         parentRigidbody.gravityScale = 0f; // No gravity while I'm being tossed around by the god
-        isIdle = false; // I am not idle while the god is tossing me around
+        doNotDisturb = false; // I am not idle while the god is tossing me around
         
         Vector3 targetPosition = Vector3.zero;
         while (!Input.GetMouseButtonUp(0))
@@ -260,7 +289,7 @@ public class SoldierController : MonoBehaviour
             yield return null;
         }
         parentRigidbody.gravityScale = gravityScale;
-        isIdle = true; // I'm idle yet again!
+        doNotDisturb = true; // I'm idle yet again!
         print("DragCor has ended!");
     }
 
@@ -325,7 +354,7 @@ public class SoldierController : MonoBehaviour
     /// </summary>
     public virtual void DamageEnemy()
     {
-        // TODO: DAMAGE ENEMY IN THIS METHOD!
+        // DAMAGE ENEMY IN THE CHILD SCRIPT OVERRIDE METHODS!
     }
 
     /// <summary>
