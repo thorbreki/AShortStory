@@ -446,6 +446,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementSpeed: 2.3
   moveAwayDistance: 1
+  dragDistanceThreshold: 1
   attackDistance: 2
   selectedSprite: {fileID: 4127823743843510949}
   gravityScale: 2

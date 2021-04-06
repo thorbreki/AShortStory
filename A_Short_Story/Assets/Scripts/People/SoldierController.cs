@@ -9,6 +9,10 @@ public class SoldierController : MonoBehaviour
     [SerializeField] protected float movementSpeed; // The movementSpeed of this soldier
     [SerializeField] protected float moveAwayDistance; // The distance I want to move from another soldier when we are invading each other's personal spaces
 
+    // DRAGGING
+    [Header("Dragging")]
+    [SerializeField] protected float dragDistanceThreshold; // How much the god has to drag me before I actually start to respond
+
     // ATTACK
     [Header("Attack")]
     [SerializeField] protected float attackDistance = 0.8f; // The distance I want to be from an enemy when I start attacking that enemy
@@ -35,6 +39,12 @@ public class SoldierController : MonoBehaviour
     protected bool mouseDown = false; // A boolean that specifies wether the soldier was clicked on or not
     protected bool squareSelected = false; // Was the soldier selected with the select soldier square?
     protected bool doNotDisturb = true; // Am I just standing still, minding my own business?
+
+    // Time
+    /// <summary>
+    /// The time signature of when I last started not wanting to be disturbed, used to determine who moves out of the way
+    /// </summary>
+    protected float latestDoNotDisturbTime = 0f;
 
     // A vector that I can use for whatever:
     protected Vector3 vector;
@@ -83,7 +93,6 @@ public class SoldierController : MonoBehaviour
         {
             mouseDown = true; // Specify that the soldier was indeed clicked on
 
-            // Drag the soldier around!
             if (dragCoroutine != null) { StopCoroutine(dragCoroutine); }
             dragCoroutine = StartCoroutine(DragCor());
         }
@@ -129,6 +138,9 @@ public class SoldierController : MonoBehaviour
 
                 if (!otherSoldierController.GetDoNotDisturb()) { return; } // Don't do anything since the other soldier is already on a move and most definitely passing by
 
+                // If the other soldier started asking for personal space after me, then I have higher priority, thus I wont do crap!
+                if (otherSoldierController.GetLatestDoNotDisturbTime() > latestDoNotDisturbTime) { return; } 
+
                 // Stop trying to move and attack, I am obviously in the way of someone else
                 if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
                 if (attackCoroutine != null) { StopCoroutine(attackCoroutine); }
@@ -162,6 +174,15 @@ public class SoldierController : MonoBehaviour
     public bool GetDoNotDisturb()
     {
         return doNotDisturb;
+    }
+
+    /// <summary>
+    /// Get the time signature of when I last started to require my own personal space
+    /// </summary>
+    /// <returns></returns>
+    public float GetLatestDoNotDisturbTime()
+    {
+        return latestDoNotDisturbTime;
     }
 
     /// <summary>
@@ -201,10 +222,12 @@ public class SoldierController : MonoBehaviour
         float direction;
         if (targetX - transform.position.x > 0)
         {
+            parentTransform.rotation = Quaternion.Euler(0f, 0f, 0f);
             direction = movementSpeed;
         } else
         {
-            direction = -movementSpeed;
+            parentTransform.rotation = Quaternion.Euler(0f, 180f, 0f);
+            direction = movementSpeed;
         }
         yield return null;
         while (Mathf.Abs(targetX - transform.position.x) > 0.05f)
@@ -217,6 +240,7 @@ public class SoldierController : MonoBehaviour
         //soldierAnimator.SetBool("isWalking", false); // End The walking animation
         SetAnimationStatus(animationStatus.isIdle);
         doNotDisturb = true; // Idle yet again!
+        latestDoNotDisturbTime = Time.time;
         moveToCoroutine = null; // Set the coroutine object for this coroutine to null since this coroutine has ended
     }
 
@@ -224,6 +248,7 @@ public class SoldierController : MonoBehaviour
     {
         print("AttackCor started!");
         focusedEnemyTransform = targetTransform; // Set the transform so other methods know what enemy they are supposed to interact with
+        bool notDisturbTimeAlreadySet = false;
 
         // The loop runs until the enemy has been dealt with
         while (targetTransform != null)
@@ -239,14 +264,16 @@ public class SoldierController : MonoBehaviour
             // This code runs when I am close enough to my target to attack
             else
             {
+                if (!notDisturbTimeAlreadySet)
+                {
+                    latestDoNotDisturbTime = Time.time;
+                    notDisturbTimeAlreadySet = true;
+                }
                 doNotDisturb = true; // I am not to be disturbed when battling a dangerous foe!
                 SetAnimationStatus(animationStatus.isAttacking);
             }
             yield return null;
         }
-
-
-        //soldierAnimator.SetBool("isWalking", false); // No longer need to move
         SetAnimationStatus(animationStatus.isIdle);
         focusedEnemyTransform = null; // I shouldn't focus on the enemy anymore since they're dead, hurray!
         doNotDisturb = true; // Idle yet again
@@ -259,10 +286,12 @@ public class SoldierController : MonoBehaviour
         float direction;
         if (targetTransform.position.x - transform.position.x > 0)
         {
+            parentTransform.rotation = Quaternion.Euler(0f, 0f, 0f);
             direction = movementSpeed;
         } else
         {
-            direction = -movementSpeed;
+            parentTransform.rotation = Quaternion.Euler(0f, 180f, 0f);
+            direction = movementSpeed;
         }
 
         // Then move a little closer to my prey
@@ -278,9 +307,18 @@ public class SoldierController : MonoBehaviour
         StopSoldierCoroutines(); // Stop all current coroutines so the god can toss me around as they please
         parentRigidbody.gravityScale = 0f; // No gravity while I'm being tossed around by the god
         doNotDisturb = false; // I am not idle while the god is tossing me around
+        SetAnimationStatus(animationStatus.isIdle);
+
+        Vector2 startingPosition = transform.position; // My position when the god starts tossing me around
         
+        // The god will not drag me around unless he moves his force far enough from me, this loop will make sure of that
+        while (Vector2.Distance(Camera.main.ScreenToWorldPoint(Input.mousePosition), transform.position) < dragDistanceThreshold)
+        {
+            yield return null;
+        }
+
         Vector3 targetPosition = Vector3.zero;
-        while (!Input.GetMouseButtonUp(0))
+        while (Input.GetMouseButton(0))
         {
             targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); // Calculate the targetPosition
             targetPosition.z = parentTransform.position.z; // Make sure that the targetPosition doesn't change the z-value
@@ -289,6 +327,7 @@ public class SoldierController : MonoBehaviour
         }
         parentRigidbody.gravityScale = gravityScale;
         doNotDisturb = true; // I'm idle yet again!
+        latestDoNotDisturbTime = Time.time;
         print("DragCor has ended!");
     }
 
