@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CanvasController : MonoBehaviour
 {
-    [SerializeField] private GameObject barracksMenu; // The menu that drops down when Player clicks on a Barrack
+    [SerializeField] private GameObject barracksMenuObject; // The menu that drops down when Player clicks on a Barrack
     private RectTransform barracksMenuRectTransform; // The Rect Transform component of the barracksMenu object
 
     private float descentAmount = 210f; // How much the menu descends down from the starting point
@@ -13,8 +13,8 @@ public class CanvasController : MonoBehaviour
 
     private void Start()
     {
-        barracksMenu.SetActive(false); // Make sure that the Barracks Menu is inactive when game starts
-        barracksMenuRectTransform = barracksMenu.GetComponent<RectTransform>();
+        barracksMenuObject.SetActive(false); // Make sure that the Barracks Menu is inactive when game starts
+        barracksMenuRectTransform = barracksMenuObject.GetComponent<RectTransform>();
 
         EventManager.onBarrackClick += OnBarrackClick; // Listen to when Player clicks on the Barrack
     }
@@ -22,7 +22,8 @@ public class CanvasController : MonoBehaviour
     // WHEN PLAYER CLICKS ON BARRACK THIS FUNCTION RUNS, ACTIVATES THE BARRACKS MENU
     private void OnBarrackClick(Vector3 barrackPosition)
     {
-        barracksMenu.SetActive(true);
+        barracksMenuObject.SetActive(true);
+        barracksMenuObject.GetComponent<BuildingMenuController>().SetFocusedBarrackPosition(barrackPosition);
         StartCoroutine(DescendMenu(barracksMenuRectTransform,
             new Vector3(barracksMenuRectTransform.anchoredPosition.x,
             barracksMenuRectTransform.anchoredPosition.y - descentAmount,
@@ -39,5 +40,10 @@ public class CanvasController : MonoBehaviour
         }
         inputTransform.anchoredPosition = targetPosition;
         Debug.Log("DescendMenu is done!");
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.onBarrackClick -= OnBarrackClick;
     }
 }

@@ -220,19 +220,21 @@ public class SoldierController : MonoBehaviour
         //soldierAnimator.SetBool("isWalking", true); // Start The walking animation
         SetAnimationStatus(animationStatus.isWalking);
         float direction;
-        if (targetX - transform.position.x > 0)
-        {
-            parentTransform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            direction = movementSpeed;
-        } else
-        {
-            parentTransform.rotation = Quaternion.Euler(0f, 180f, 0f);
-            direction = movementSpeed;
-        }
+        UpdateRotation(targetX);
+        //if (targetX - transform.position.x > 0)
+        //{
+        //    parentTransform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        //    direction = movementSpeed;
+        //} else
+        //{
+        //    parentTransform.rotation = Quaternion.Euler(0f, 180f, 0f);
+        //    direction = movementSpeed;
+        //}
+
         yield return null;
         while (Mathf.Abs(targetX - transform.position.x) > 0.05f)
         {
-            parentTransform.Translate(direction * Time.deltaTime, 0f, 0f);
+            parentTransform.Translate(movementSpeed * Time.deltaTime, 0f, 0f);
 
             yield return null;
         }
@@ -253,6 +255,7 @@ public class SoldierController : MonoBehaviour
         // The loop runs until the enemy has been dealt with
         while (targetTransform != null)
         {
+            UpdateRotation(targetTransform.position.x);
             // This code runs when I am too far away from the enemy to attack
             if (Vector2.Distance(transform.position, targetTransform.position) > attackDistance)
             {
@@ -348,6 +351,17 @@ public class SoldierController : MonoBehaviour
             {
                 soldierAnimator.SetBool(animationStatusArray[i], false);
             }
+        }
+    }
+
+    protected void UpdateRotation(float targetXPosition)
+    {
+        if (targetXPosition < parentTransform.position.x)
+        {
+            parentTransform.rotation = Quaternion.Euler(0f, 180f, 0f);
+        } else
+        {
+            parentTransform.rotation = Quaternion.Euler(0f, 0f, 0f);
         }
     }
 

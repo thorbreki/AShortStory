@@ -62,10 +62,23 @@ public class GameManager : MonoBehaviour
     // -------------------------------------------------------------------
     // S E T T E R S
 
-    // FLIPS THE ARMY MODE OF THE MAIN CAMERA'S CAMERACONTROLLER COMPONENT
+    /// <summary>
+    /// Sets the Player Mode of the game to the given new Player Mode and also makes sure that the game transitions between these modes correctly
+    /// </summary>
+    /// <param name="newPlayerMode">The new Player Mode that the game will be operating</param>
     public void SetPlayerMode(Constants.PlayerMode newPlayerMode)
     {
-        playerMode = newPlayerMode;
+        playerMode = newPlayerMode; // Update the Player Mode of the game
+
+        // Make sure all transitions work correctly
+        switch (newPlayerMode)
+        {
+            case Constants.PlayerMode.BuildingInteraction:
+                EventManager.RaiseOnSelected(); // Make sure that all selected soldiers become unselected, since this game mode does not allow selection of soldiers
+                break;
+            default:
+                break;
+        }
     }
 
     /// <summary>

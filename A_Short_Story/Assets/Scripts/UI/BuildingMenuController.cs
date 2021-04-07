@@ -11,17 +11,37 @@ public class BuildingMenuController : MonoBehaviour
     //[SerializeField] private GameObject builderTrainerObject; // The Builder Trainer prefab
     private RectTransform rectTransform;
     private float ascendAmount = 210f;
+    private Vector3 focusedBarrackPosition; // The position of the Barrack that was just clicked on
 
     private void Start()
     {
         rectTransform = GetComponent<RectTransform>();
     }
 
+    public Vector3 GetFocusedBarrackPosition()
+    {
+        return focusedBarrackPosition;
+    }
+
+    public void SetFocusedBarrackPosition(Vector3 newBarrackPosition)
+    {
+        focusedBarrackPosition = newBarrackPosition;
+    }
 
     public void StopBuildingInteraction()
     {
         StartCoroutine(AscendMenuCoroutine(rectTransform, new Vector3(rectTransform.anchoredPosition.x, rectTransform.anchoredPosition.y + ascendAmount, transform.position.z), 0.1f, 0.05f));
         GameManager.instance.SetPlayerMode(Constants.PlayerMode.Army);
+    }
+
+    /// <summary>
+    /// Spawn a person of any type into the game
+    /// </summary>
+    /// <param name="newPersonObject"></param>
+    public void SpawnPerson(GameObject newPersonObject)
+    {
+        GameObject newPerson = Instantiate(newPersonObject);
+        newPerson.transform.position = new Vector3(focusedBarrackPosition.x, focusedBarrackPosition.y, Constants.soldierZPosition);
     }
         
     // THIS COROUTINE MAKES THE MENU GO UP, OVER THE CANVAS AND SET IT AS INACTIVE
