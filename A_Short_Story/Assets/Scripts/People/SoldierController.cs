@@ -151,18 +151,31 @@ public class SoldierController : MonoBehaviour
                     if (otherSoldierEnemy.position.x > otherSoldierController.transform.position.x) // If the enemy is to the right of the other soldier
                     {
                         moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
-                    } else // The enemy is to the left of the other soldier
+                    }
+                    else // The enemy is to the left of the other soldier
                     {
                         moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x + moveAwayDistance));
                     }
                 }
-                else if (transform.position.x <= collision.transform.position.x) // If I am to the left of the other fellow soldier
+                else // The other soldier is just idle and doing nothing so I can choose which way to go
                 {
-                    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
-                } else // If I am to the right of the other fellow soldier
-                {
-                    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x + moveAwayDistance));
+                    int randomInt = Random.Range(0, 2);
+                    if (randomInt == 1)
+                    {
+                        moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
+                    }
+                    else if (randomInt == 0)
+                    {
+                        moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x + moveAwayDistance));
+                    }
                 }
+                //else if (transform.position.x <= collision.transform.position.x) // If I am to the left of the other fellow soldier
+                //{
+                //    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
+                //} else // If I am to the right of the other fellow soldier
+                //{
+                //    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x + moveAwayDistance));
+                //}
             }
         }
     }
@@ -217,19 +230,8 @@ public class SoldierController : MonoBehaviour
     protected IEnumerator MoveToCor(float targetX)
     {
         doNotDisturb = false; // I'm not idle when walking
-        //soldierAnimator.SetBool("isWalking", true); // Start The walking animation
         SetAnimationStatus(animationStatus.isWalking);
-        float direction;
         UpdateRotation(targetX);
-        //if (targetX - transform.position.x > 0)
-        //{
-        //    parentTransform.rotation = Quaternion.Euler(0f, 0f, 0f);
-        //    direction = movementSpeed;
-        //} else
-        //{
-        //    parentTransform.rotation = Quaternion.Euler(0f, 180f, 0f);
-        //    direction = movementSpeed;
-        //}
 
         yield return null;
         while (Mathf.Abs(targetX - transform.position.x) > 0.05f)
@@ -239,7 +241,6 @@ public class SoldierController : MonoBehaviour
             yield return null;
         }
         parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
-        //soldierAnimator.SetBool("isWalking", false); // End The walking animation
         SetAnimationStatus(animationStatus.isIdle);
         doNotDisturb = true; // Idle yet again!
         latestDoNotDisturbTime = Time.time;
