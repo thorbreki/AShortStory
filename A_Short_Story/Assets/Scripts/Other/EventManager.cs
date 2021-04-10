@@ -4,8 +4,14 @@ using UnityEngine;
 
 public class EventManager : MonoBehaviour
 {
-    public delegate void OnBarrackClick(Vector3 barrackPosition);
-    public static event OnBarrackClick onBarrackClick; // When a barrack is clicked on by the Player
+    public delegate void OnBuildingClick(Vector3 buildingPosition);
+    public static event OnBuildingClick onBuildingClick; // When a building is left-clicked by the Player
+
+    public delegate void OnBarrackClick();
+    public static event OnBarrackClick onBarrackClick; // When a barrack is left-clicked by the Player
+
+    public delegate void OnSmithyClick();
+    public static event OnSmithyClick onSmithyClick; // When a barrack is left-clicked by the Player
 
     public delegate void OnSelect();
     public static event OnSelect onSelect; // When the Player selects/left-clicks any object in the scene
@@ -16,12 +22,36 @@ public class EventManager : MonoBehaviour
     public delegate void OnAttack(Transform targetTransform);
     public static event OnAttack onAttack; // When the player tells selected soldiers to attack
 
+    /// <summary>
+    /// Should be raised when a building is left-clicked by the Player
+    /// </summary>
+    /// <param name="buildingPosition"></param>
+    public static void RaiseOnBuildingClick(Vector3 buildingPosition)
+    {
+        if (onBuildingClick != null)
+        {
+            onBuildingClick(buildingPosition);
+        }
+    }
+
     /// <summary>This event should be raised when the Player clicks on a Barrack</summary>
-    public static void RaiseOnBarrackClick(Vector3 barrackPosition)
+    public static void RaiseOnBarrackClick()
     {
         if (onBarrackClick != null)
         {
-            onBarrackClick(barrackPosition);
+            onBarrackClick();
+        }
+    }
+
+    /// <summary>
+    /// Raises the OnSmithyClick event, should be called when player left-clicks on a Smithy
+    /// </summary>
+    /// <param name="smithyPosition">The position of the left-clicked Smithy</param>
+    public static void RaiseOnSmithyClick()
+    {
+        if (onSmithyClick != null)
+        {
+            onSmithyClick();
         }
     }
 

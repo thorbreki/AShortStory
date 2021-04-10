@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SmithyController : MonoBehaviour
+public class SmithyController : BuildingController
 {
-    private void OnMouseDown()
+    protected override void OnMouseDown()
     {
         if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
         {
-            print("THE PLAYER CLICKED ON THE SMITHY!");
+            base.OnMouseDown();
+            EventManager.RaiseOnSmithyClick(); // Raise the clicked-on-smithy event
         }
     }
 }

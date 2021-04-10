@@ -9,15 +9,28 @@ public class GameManager : MonoBehaviour
 
     // PUBLIC VARIABLES
     [SerializeField] private float gravity; // The strength of the gravity in the game
+
+    // PRIVATE VARIABLES
     private Constants.PlayerMode playerMode; // This is the variable that chooses what Player Mode is ongoing
     private bool selectSoldierSquareShouldSpawn = false; // This variable lets the PlayerController know if the select soldier square should be spawned or not
     private bool onMoveShouldBeRaised = true; // This variable lets the PlayerController know if the OnMove event should be raised, resulting in soldiers moving to position
+    private Vector3 buildingInteractionPosition; // This vector tells where the building the Player is interacting with is located
 
     private void Awake()
     {
         instance = this;
         // Cursor.lockState = CursorLockMode.Confined;
         playerMode = Constants.PlayerMode.Army; // The game starts with the Player Mode set to Army!
+    }
+
+    private void Start()
+    {
+        EventManager.onBuildingClick += OnBuildingClick;
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.onBuildingClick -= OnBuildingClick;
     }
 
     // -------------------------------------------------------------------
@@ -59,6 +72,15 @@ public class GameManager : MonoBehaviour
         return onMoveShouldBeRaised;
     }
 
+    /// <summary>
+    /// A getter for the position of the building the Player is currently interacting with
+    /// </summary>
+    /// <returns>The interacted building position</returns>
+    public Vector3 GetBuildingInteractionPosition()
+    {
+        return buildingInteractionPosition;
+    }
+
     // -------------------------------------------------------------------
     // S E T T E R S
 
@@ -75,6 +97,12 @@ public class GameManager : MonoBehaviour
         {
             case Constants.PlayerMode.BuildingInteraction:
                 EventManager.RaiseOnSelected(); // Make sure that all selected soldiers become unselected, since this game mode does not allow selection of soldiers
+                break;
+            case Constants.PlayerMode.Army:
+                buildingInteractionPosition = Vector3.zero; // The player is not interacting with any buildings
+                break;
+            case Constants.PlayerMode.Battle:
+                buildingInteractionPosition = Vector3.zero; // The player is not interacting with any buildings
                 break;
             default:
                 break;
@@ -97,5 +125,13 @@ public class GameManager : MonoBehaviour
     public void SetOnMoveShouldBeRaised(bool newBool)
     {
         onMoveShouldBeRaised = newBool;
+    }
+
+    // -------------------------------------------------------------------
+    // E V E N T S
+
+    private void OnBuildingClick(Vector3 buildingPosition)
+    {
+
     }
 }

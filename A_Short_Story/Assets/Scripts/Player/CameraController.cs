@@ -34,13 +34,13 @@ public class CameraController : MonoBehaviour
         screenWidth = Screen.width; // Set the screen width in the beginning to not have to do it again (might want to rethink that later on)
         mouseMoveThreshold = Screen.width / numOfScreenParts; // The threshold will be equal to the width of a single part of the screen
 
-        EventManager.onBarrackClick += OnBuildingClick; // When player clicks on a building, the Camera's OnBuildingClick method runs
+        EventManager.onBuildingClick += OnBuildingClick; // When player clicks on a building, the Camera's OnBuildingClick method runs
     }
 
 
     void OnDestroy()
     {
-        EventManager.onBarrackClick -= OnBuildingClick; // Remove event listener
+        EventManager.onBuildingClick -= OnBuildingClick; // Remove event listener
     }
 
 
@@ -122,15 +122,15 @@ public class CameraController : MonoBehaviour
         return Mathf.Abs(thresholdPosition - Input.mousePosition.x) / mouseMoveThreshold;
     }
 
-
-    private void OnBuildingClick(Vector3 barrackPosition)
+    /// <summary>
+    /// Smoothly move to the building's Position
+    /// </summary>
+    /// <param name="buildingPosition"></param>
+    private void OnBuildingClick(Vector3 buildingPosition)
     {
-        if (smoothLerpCoroutine != null)
-        {
-            StopCoroutine(smoothLerpCoroutine);
-        }
+        if (smoothLerpCoroutine != null) { StopCoroutine(smoothLerpCoroutine); }
 
-        smoothLerpCoroutine = StartCoroutine(Utils.SmoothLerpPosition(transform, new Vector3(barrackPosition.x, transform.position.y, transform.position.z), 0.2f, 0.05f));
+        smoothLerpCoroutine = StartCoroutine(Utils.SmoothLerpPosition(transform, new Vector3(buildingPosition.x, transform.position.y, transform.position.z), 0.2f, 0.05f));
     }
 }
 
