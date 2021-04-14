@@ -446,11 +446,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementSpeed: 2.3
   moveAwayDistance: 1
+  gravityScale: 2
+  height: 0.5
   dragDistanceThreshold: 1
   attackDistance: 2
   selectedSprite: {fileID: 4127823743843510949}
-  gravityScale: 2
-  height: 0.5
   damage: 1
 --- !u!1 &7605031965303616400
 GameObject:
@@ -463,6 +463,7 @@ GameObject:
   - component: {fileID: 6584064219977947371}
   - component: {fileID: 6825692141719429177}
   - component: {fileID: 6825692141719429178}
+  - component: {fileID: 205234737667205345}
   m_Layer: 10
   m_Name: Swordsman
   m_TagString: Untagged
@@ -532,3 +533,15 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &205234737667205345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7605031965303616400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e40e924b666e32c4284da1ec9f8be1ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

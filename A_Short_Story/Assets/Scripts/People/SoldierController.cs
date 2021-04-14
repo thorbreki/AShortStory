@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoldierController : MonoBehaviour
+public class SoldierController : PersonController
 {
     // MOVEMENT
     [Header("Movement")] 
-    [SerializeField] protected float movementSpeed; // The movementSpeed of this soldier
-    [SerializeField] protected float moveAwayDistance; // The distance I want to move from another soldier when we are invading each other's personal spaces
+    //[SerializeField] protected float movementSpeed; // The movementSpeed of this soldier
+    //[SerializeField] protected float moveAwayDistance; // The distance I want to move from another soldier when we are invading each other's personal spaces
 
     // DRAGGING
     [Header("Dragging")]
@@ -16,62 +16,64 @@ public class SoldierController : MonoBehaviour
     // ATTACK
     [Header("Attack")]
     [SerializeField] protected float attackDistance = 0.8f; // The distance I want to be from an enemy when I start attacking that enemy
-    protected Transform focusedEnemyTransform; // The enemy's transform component that I am focused on
+    //protected Transform focusedEnemyTransform; // The enemy's transform component that I am focused on
 
     // CONNECTED GAME OBJECTS AND COMPONENTS
     [Header("Connected game objects and components")]
     [SerializeField] private GameObject selectedSprite; // The game object that shows wether a soldier is selected or not
-    protected Animator soldierAnimator; // The Animator component of the soldier
+    //protected Animator soldierAnimator; // The Animator component of the soldier
     protected Rigidbody2D parentRigidbody; // The rigidbody component of the parent
-    protected Transform parentTransform; // The Parent Transform of the soldier sprite
+    //protected Transform parentTransform; // The Parent Transform of the soldier sprite
 
     // PHYSICS
     [Header("Physics")]
-    [SerializeField] protected float gravityScale = 2f; // The gravityScale for this soldier
+    //[SerializeField] protected float gravityScale = 2f; // The gravityScale for this soldier
 
     // GENERAL ATTRIBUTES
     [Header("General Attributes")]
-    [SerializeField] protected float height = 0.5f; // My height
+    //[SerializeField] protected float height = 0.5f; // My height
 
     // Status booleans
     protected bool controlled = false; // If the soldier is controlled the player can take control, otherwise the person thinks freely
     protected bool selected = false;
     protected bool mouseDown = false; // A boolean that specifies wether the soldier was clicked on or not
     protected bool squareSelected = false; // Was the soldier selected with the select soldier square?
-    protected bool doNotDisturb = true; // Am I just standing still, minding my own business?
+    //protected bool doNotDisturb = true; // Am I just standing still, minding my own business?
 
     // Time
     /// <summary>
     /// The time signature of when I last started not wanting to be disturbed, used to determine who moves out of the way
     /// </summary>
-    protected float latestDoNotDisturbTime = 0f;
+    //protected float latestDoNotDisturbTime = 0f;
 
     // A vector that I can use for whatever:
-    protected Vector3 vector;
+    //protected Vector3 vector;
 
     // Coroutine objects:
-    protected Coroutine moveToCoroutine; // The object storing the MoveToCor coroutine
+    //protected Coroutine moveToCoroutine; // The object storing the MoveToCor coroutine
     protected Coroutine dragCoroutine; // The object storing the DragCor coroutine
     protected Coroutine attackCoroutine; // The object storing the AttackCor coroutine
 
     // Animation stuff:
-    protected enum animationStatus // The different options for the status of the soldier's animator that are also indices to the animationStatusArray
-    {
-        isWalking = 0,
-        isAttacking = 1,
-        isIdle = 69
-    }
+    //protected enum animationStatus // The different options for the status of the soldier's animator that are also indices to the animationStatusArray
+    //{
+    //    isWalking = 0,
+    //    isAttacking = 1,
+    //    isIdle = 69
+    //}
 
-    private string[] animationStatusArray = new string[2] // An array that contains all different booleans in the soldier's animator 
+    protected string[] animationStatusArray = new string[2] // An array that contains all different booleans in the soldier's animator 
     {
         animationStatus.isWalking.ToString(),
         animationStatus.isAttacking.ToString()
     };
 
-    protected void Start()
+    protected override void Start()
     {
-        parentTransform = transform.parent; // Set the parentTransform
-        soldierAnimator = gameObject.GetComponent<Animator>(); // Get the Animator component of the child sprite object
+        base.Start();
+
+        //parentTransform = transform.parent; // Set the parentTransform
+        //soldierAnimator = gameObject.GetComponent<Animator>(); // Get the Animator component of the child sprite object
         parentRigidbody = transform.parent.GetComponent<Rigidbody2D>(); // Set the rigidbody component of the parent
         selectedSprite.SetActive(false); // Set the selected sprite inactive by default
 
@@ -89,6 +91,7 @@ public class SoldierController : MonoBehaviour
 
     protected void OnMouseDown()
     {
+        print("ONMOUSEDOWN!");
         if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
         {
             mouseDown = true; // Specify that the soldier was indeed clicked on
@@ -101,6 +104,7 @@ public class SoldierController : MonoBehaviour
     // WHEN PLAYER LEFT CLICKS ON THE SOLDIER, THE PLAYER CAN THEN TELL THE SOLDIER WHAT TO DO
     protected void OnMouseUp()
     {
+        print("ONMOUSEUP!");
         if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army && mouseDown)
         {
 
@@ -126,86 +130,79 @@ public class SoldierController : MonoBehaviour
     /// This is a function that currently only moves me from other soldiers if I am invading their personal space
     /// </summary>
     /// <param name="collision"></param>
-    protected void OnTriggerStay2D(Collider2D collision)
-    {
-        // Must make sure that I'm not in any other fellow soldier's personal space. It is very important for one's mental health!
-        if (doNotDisturb) // Only move from other soldier's if I'm idle
-        {
-            SoldierController otherSoldierController = collision.GetComponent<SoldierController>();
-            if (otherSoldierController != null) // If the "thing" I'm colliding with is actually a soldier
-            {
-                Transform otherSoldierEnemy = otherSoldierController.GetFocusedEnemyTransform(); // The enemy the other soldier is focused on
+    //protected void OnTriggerStay2D(Collider2D collision)
+    //{
+    //    // Must make sure that I'm not in any other fellow soldier's personal space. It is very important for one's mental health!
+    //    if (doNotDisturb) // Only move from other soldier's if I'm idle
+    //    {
+    //        SoldierController otherSoldierController = collision.GetComponent<SoldierController>();
+    //        if (otherSoldierController != null) // If the "thing" I'm colliding with is actually a soldier
+    //        {
+    //            Transform otherSoldierEnemy = otherSoldierController.GetFocusedEnemyTransform(); // The enemy the other soldier is focused on
 
-                if (!otherSoldierController.GetDoNotDisturb()) { return; } // Don't do anything since the other soldier is already on a move and most definitely passing by
+    //            if (!otherSoldierController.GetDoNotDisturb()) { return; } // Don't do anything since the other soldier is already on a move and most definitely passing by
 
-                // If the other soldier started asking for personal space after me, then I have higher priority, thus I wont do crap!
-                if (otherSoldierController.GetLatestDoNotDisturbTime() > latestDoNotDisturbTime) { return; } 
+    //            // If the other soldier started asking for personal space after me, then I have higher priority, thus I wont do crap!
+    //            if (otherSoldierController.GetLatestDoNotDisturbTime() > latestDoNotDisturbTime) { return; } 
 
-                // Stop trying to move and attack, I am obviously in the way of someone else
-                if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
-                if (attackCoroutine != null) { StopCoroutine(attackCoroutine); }
+    //            // Stop trying to move and attack, I am obviously in the way of someone else
+    //            if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
+    //            if (attackCoroutine != null) { StopCoroutine(attackCoroutine); }
 
 
-                if (otherSoldierEnemy != null) // The other soldier is battling an enemy so I should go the opposite direction
-                {
-                    if (otherSoldierEnemy.position.x > otherSoldierController.transform.position.x) // If the enemy is to the right of the other soldier
-                    {
-                        moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
-                    }
-                    else // The enemy is to the left of the other soldier
-                    {
-                        moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x + moveAwayDistance));
-                    }
-                }
-                else // The other soldier is just idle and doing nothing so I can choose which way to go
-                {
-                    int randomInt = Random.Range(0, 2);
-                    if (randomInt == 1)
-                    {
-                        moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
-                    }
-                    else if (randomInt == 0)
-                    {
-                        moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x + moveAwayDistance));
-                    }
-                }
-                //else if (transform.position.x <= collision.transform.position.x) // If I am to the left of the other fellow soldier
-                //{
-                //    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
-                //} else // If I am to the right of the other fellow soldier
-                //{
-                //    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x + moveAwayDistance));
-                //}
-            }
-        }
-    }
+    //            if (otherSoldierEnemy != null) // The other soldier is battling an enemy so I should go the opposite direction
+    //            {
+    //                if (otherSoldierEnemy.position.x > otherSoldierController.transform.position.x) // If the enemy is to the right of the other soldier
+    //                {
+    //                    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
+    //                }
+    //                else // The enemy is to the left of the other soldier
+    //                {
+    //                    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x + moveAwayDistance));
+    //                }
+    //            }
+    //            else // The other soldier is just idle and doing nothing so I can choose which way to go
+    //            {
+    //                int randomInt = Random.Range(0, 2);
+    //                if (randomInt == 1)
+    //                {
+    //                    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x - moveAwayDistance));
+    //                }
+    //                else if (randomInt == 0)
+    //                {
+    //                    moveToCoroutine = StartCoroutine(MoveToCor(transform.position.x + moveAwayDistance));
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
     /// <summary>
     /// Returns wether this soldier is idle or not
     /// </summary>
     /// <returns>A boolean</returns>
-    public bool GetDoNotDisturb()
-    {
-        return doNotDisturb;
-    }
+    //public bool GetDoNotDisturb()
+    //{
+    //    return doNotDisturb;
+    //}
 
     /// <summary>
     /// Get the time signature of when I last started to require my own personal space
     /// </summary>
     /// <returns></returns>
-    public float GetLatestDoNotDisturbTime()
-    {
-        return latestDoNotDisturbTime;
-    }
+    //public float GetLatestDoNotDisturbTime()
+    //{
+    //    return latestDoNotDisturbTime;
+    //}
 
     /// <summary>
     /// Returns the Transform that I am currently trying to engage in chivalrous combat with
     /// </summary>
     /// <returns></returns>
-    public Transform GetFocusedEnemyTransform()
-    {
-        return focusedEnemyTransform;
-    }
+    //public Transform GetFocusedEnemyTransform()
+    //{
+    //    return focusedEnemyTransform;
+    //}
 
     /// <summary>
     /// Run this function to execute all the stuff that are always required when the soldier gets selected
@@ -227,25 +224,25 @@ public class SoldierController : MonoBehaviour
     /// </summary>
     /// <param name="targetPosition">The position the soldier is supposed to walk to</param>
     /// <returns></returns>
-    protected IEnumerator MoveToCor(float targetX)
-    {
-        doNotDisturb = false; // I'm not idle when walking
-        SetAnimationStatus(animationStatus.isWalking);
-        UpdateRotation(targetX);
+    //protected IEnumerator MoveToCor(float targetX)
+    //{
+    //    doNotDisturb = false; // I'm not idle when walking
+    //    SetAnimationStatus(animationStatus.isWalking);
+    //    UpdateRotation(targetX);
 
-        yield return null;
-        while (Mathf.Abs(targetX - transform.position.x) > 0.05f)
-        {
-            parentTransform.Translate(movementSpeed * Time.deltaTime, 0f, 0f);
+    //    yield return null;
+    //    while (Mathf.Abs(targetX - transform.position.x) > 0.05f)
+    //    {
+    //        parentTransform.Translate(movementSpeed * Time.deltaTime, 0f, 0f);
 
-            yield return null;
-        }
-        parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
-        SetAnimationStatus(animationStatus.isIdle);
-        doNotDisturb = true; // Idle yet again!
-        latestDoNotDisturbTime = Time.time;
-        moveToCoroutine = null; // Set the coroutine object for this coroutine to null since this coroutine has ended
-    }
+    //        yield return null;
+    //    }
+    //    parentTransform.position = new Vector3(targetX, parentTransform.position.y, parentTransform.position.z);
+    //    SetAnimationStatus(animationStatus.isIdle);
+    //    doNotDisturb = true; // Idle yet again!
+    //    latestDoNotDisturbTime = Time.time;
+    //    moveToCoroutine = null; // Set the coroutine object for this coroutine to null since this coroutine has ended
+    //}
 
     protected IEnumerator AttackCor(Transform targetTransform)
     {
@@ -308,7 +305,7 @@ public class SoldierController : MonoBehaviour
     /// <returns></returns>
     protected IEnumerator DragCor()
     {
-        StopSoldierCoroutines(); // Stop all current coroutines so the god can toss me around as they please
+        StopCoroutines(); // Stop all current coroutines so the god can toss me around as they please
         parentRigidbody.gravityScale = 0f; // No gravity while I'm being tossed around by the god
         doNotDisturb = false; // I am not idle while the god is tossing me around
         SetAnimationStatus(animationStatus.isIdle);
@@ -339,7 +336,7 @@ public class SoldierController : MonoBehaviour
     /// Sets the animator booleans to respective values according to the status that is given as parameter
     /// </summary>
     /// <param name="newStatus"></param>
-    protected void SetAnimationStatus(animationStatus newStatus)
+    protected override void SetAnimationStatus(animationStatus newStatus)
     {
         int newStatusInt = (int)newStatus; // The new animation status integerized
 
@@ -347,24 +344,24 @@ public class SoldierController : MonoBehaviour
         {
             if (i == newStatusInt)
             {
-                soldierAnimator.SetBool(animationStatusArray[i], true);
+                personAnimator.SetBool(animationStatusArray[i], true);
             } else
             {
-                soldierAnimator.SetBool(animationStatusArray[i], false);
+                personAnimator.SetBool(animationStatusArray[i], false);
             }
         }
     }
 
-    protected void UpdateRotation(float targetXPosition)
-    {
-        if (targetXPosition < parentTransform.position.x)
-        {
-            parentTransform.rotation = Quaternion.Euler(0f, 180f, 0f);
-        } else
-        {
-            parentTransform.rotation = Quaternion.Euler(0f, 0f, 0f);
-        }
-    }
+    //protected void UpdateRotation(float targetXPosition)
+    //{
+    //    if (targetXPosition < parentTransform.position.x)
+    //    {
+    //        parentTransform.rotation = Quaternion.Euler(0f, 180f, 0f);
+    //    } else
+    //    {
+    //        parentTransform.rotation = Quaternion.Euler(0f, 0f, 0f);
+    //    }
+    //}
 
     /// <summary>
     /// This function executes when the player tells a soldier to move to a specific postition
@@ -413,7 +410,7 @@ public class SoldierController : MonoBehaviour
     /// <summary>
     /// This bad boy stops all soldier-specific coroutines so I can have a clear mind when the god tells me what to do
     /// </summary>
-    protected void StopSoldierCoroutines()
+    protected override void StopCoroutines()
     {
         if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); }
