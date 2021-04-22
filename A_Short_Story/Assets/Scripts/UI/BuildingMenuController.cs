@@ -32,6 +32,7 @@ public class BuildingMenuController : MonoBehaviour
     {
         GameObject newPerson = Instantiate(newPersonObject);
         Vector3 buildingPosition = GameManager.instance.GetBuildingInteractionPosition();
+        print("The x position of this building: " + buildingPosition.x);
         newPerson.transform.position = new Vector3(buildingPosition.x, buildingPosition.y, Constants.soldierZPosition);
     }
         

@@ -132,6 +132,6 @@ public class GameManager : MonoBehaviour
 
     private void OnBuildingClick(Vector3 buildingPosition)
     {
-
+        buildingInteractionPosition = buildingPosition;
     }
 }

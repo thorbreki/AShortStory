@@ -25,6 +25,16 @@ public class PersonController : MonoBehaviour
     [SerializeField] protected float height = 0.5f;
 
     /// <summary>
+    /// The object that I am holding on in my right hand (sword, hammer, bow, staff...)
+    /// </summary>
+    [SerializeField] protected GameObject objectInRightHandObject;
+
+    /// <summary>
+    /// The object that I am holding on in my left hand (sword, hammer, bow, staff...)
+    /// </summary>
+    [SerializeField] protected GameObject objectInLeftHandObject;
+
+    /// <summary>
     /// My animator component
     /// </summary>
     protected Animator personAnimator; // The Animator component of the soldier
@@ -70,7 +80,8 @@ public class PersonController : MonoBehaviour
     {
         isWalking = 0,
         isAttacking = 1,
-        isDead = 2,
+        isBuilding = 2,
+        isDead = 3,
         isIdle = 69
     }
 
@@ -78,6 +89,9 @@ public class PersonController : MonoBehaviour
     {
         parentTransform = transform.parent; // Set the parentTransform
         personAnimator = GetComponent<Animator>(); // Set the animator component
+
+        objectInRightHandObject.SetActive(true);
+        objectInLeftHandObject.SetActive(false);
 
         // Determine whether I will go to the left or to the right when moving from other people
         int randomInt = Random.Range(0, 2);
@@ -134,8 +148,6 @@ public class PersonController : MonoBehaviour
                 if (otherSoldierController.GetLatestDoNotDisturbTime() > latestDoNotDisturbTime) { return; }
 
                 // Stop trying to move and attack, I am obviously in the way of someone else
-                //if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
-                //if (attackCoroutine != null) { StopCoroutine(attackCoroutine); }
                 StopCoroutines();
 
 
@@ -176,7 +188,10 @@ public class PersonController : MonoBehaviour
         yield return null;
         while (Mathf.Abs(targetX - transform.position.x) > 0.05f)
         {
-            parentTransform.Translate(movementSpeed * Time.deltaTime, 0f, 0f);
+            if (targetX < parentTransform.position.x)
+                parentTransform.Translate(-movementSpeed * Time.deltaTime, 0f, 0f);
+            else
+                parentTransform.Translate(movementSpeed * Time.deltaTime, 0f, 0f);
 
             yield return null;
         }
@@ -195,16 +210,27 @@ public class PersonController : MonoBehaviour
         if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); moveToCoroutine = null; }
     }
 
+
+    /// <summary>
+    /// Updates my rotation by shifting the object I am holding on to the corresponding side of me. Will need to change this functionality in the future
+    /// </summary>
+    /// <param name="targetXPosition"></param>
     protected void UpdateRotation(float targetXPosition)
     {
+        if (objectInRightHandObject == null || objectInLeftHandObject == null) { return; }
+
         if (targetXPosition < parentTransform.position.x)
         {
-            parentTransform.rotation = Quaternion.Euler(0f, 180f, 0f);
+            objectInRightHandObject.SetActive(false);
+            objectInLeftHandObject.SetActive(true);
         }
         else
         {
-            parentTransform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            objectInRightHandObject.SetActive(true);
+            objectInLeftHandObject.SetActive(false);
         }
+
+
     }
 
     protected virtual void SetAnimationStatus(animationStatus newStatus)
