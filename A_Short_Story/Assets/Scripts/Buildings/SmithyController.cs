@@ -6,7 +6,7 @@ public class SmithyController : BuildingController
 {
     protected override void OnMouseDown()
     {
-        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
+        if ((GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army) && !GameManager.instance.GetPlayerIsHoveringUI())
         {
             base.OnMouseDown();
             EventManager.RaiseOnSmithyClick(); // Raise the clicked-on-smithy event

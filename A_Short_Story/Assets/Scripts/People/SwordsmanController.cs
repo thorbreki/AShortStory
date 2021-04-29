@@ -20,4 +20,22 @@ public class SwordsmanController : SoldierController
             enemyController.DamageMe(damage);
         }
     }
+
+    /// <summary>
+    /// When soldier gets unselected
+    /// </summary>
+    protected override void OnSelect()
+    {
+        base.OnSelect();
+        GameManager.instance.DecreaseNumOfSoldiersSelected();
+    }
+
+    /// <summary>
+    /// When soldier gets selected
+    /// </summary>
+    protected override void WhenSelected()
+    {
+        base.WhenSelected();
+        GameManager.instance.IncreaseNumOfSoldiersSelected();
+    }
 }

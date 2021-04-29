@@ -18,12 +18,6 @@ public class BuildingMenuController : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
     }
 
-    public void StopBuildingInteraction()
-    {
-        StartCoroutine(AscendMenuCoroutine(rectTransform, new Vector3(rectTransform.anchoredPosition.x, rectTransform.anchoredPosition.y + ascendAmount, transform.position.z), 0.1f, 0.05f));
-        GameManager.instance.SetPlayerMode(Constants.PlayerMode.Army);
-    }
-
     /// <summary>
     /// Spawn a person of any type into the game
     /// </summary>
@@ -35,18 +29,14 @@ public class BuildingMenuController : MonoBehaviour
         print("The x position of this building: " + buildingPosition.x);
         newPerson.transform.position = new Vector3(buildingPosition.x, buildingPosition.y, Constants.soldierZPosition);
     }
-        
-    // THIS COROUTINE MAKES THE MENU GO UP, OVER THE CANVAS AND SET IT AS INACTIVE
-    private IEnumerator AscendMenuCoroutine(RectTransform inputTransform, Vector3 targetPosition, float speed, float threshold)
+
+    /// <summary>
+    /// Spawn in a new unconstructed building of any type in the game so the player can choose where the building should be placed
+    /// </summary>
+    /// <param name="newBuildingObject"></param>
+    public void SpawnUnconstructedBuilding(GameObject newBuildingObject)
     {
-        print("starting");
-        while (Vector2.Distance(inputTransform.anchoredPosition, targetPosition) > threshold)
-        {
-            inputTransform.anchoredPosition = Vector3.Lerp(inputTransform.anchoredPosition, targetPosition, speed);
-            yield return null;
-        }
-        inputTransform.anchoredPosition = targetPosition;
-        Debug.Log("AscendMenu is done!");
-        gameObject.SetActive(false);
+        GameObject newBuilding = Instantiate(newBuildingObject);
+        newBuilding.transform.position = new Vector3(Camera.main.transform.position.x, newBuilding.transform.position.y, newBuilding.transform.position.z);
     }
 }

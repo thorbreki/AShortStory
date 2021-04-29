@@ -29,10 +29,11 @@ public class SoldierController : PersonController
     protected Coroutine dragCoroutine; // The object storing the DragCor coroutine
     protected Coroutine attackCoroutine; // The object storing the AttackCor coroutine
 
-    protected string[] animationStatusArray = new string[2] // An array that contains all different booleans in the soldier's animator 
+    protected string[] animationStatusArray = new string[3] // An array that contains all different booleans in the soldier's animator 
     {
         animationStatus.isWalking.ToString(),
-        animationStatus.isAttacking.ToString()
+        animationStatus.isAttacking.ToString(),
+        animationStatus.isBuilding.ToString()
     };
 
     protected override void Start()
@@ -49,9 +50,7 @@ public class SoldierController : PersonController
 
     protected void OnDestroy()
     {
-        EventManager.onSelect -= OnSelect;
-        EventManager.onMove -= OnMove;
-        EventManager.onAttack -= OnAttack;
+        StopListenToEvents();
     }
 
     protected void OnMouseDown()
@@ -95,16 +94,13 @@ public class SoldierController : PersonController
     /// <summary>
     /// Run this function to execute all the stuff that are always required when the soldier gets selected
     /// </summary>
-    protected void WhenSelected()
+    protected virtual void WhenSelected()
     {
-        EventManager.onSelect -= OnSelect; // Stop listening to when other game objects get selected
-        EventManager.onMove -= OnMove; // Stop listening to when the Player wants to move this soldier
-        EventManager.onAttack -= OnAttack;
+        StopListenToEvents();
 
         selectedSprite.SetActive(true);
-        EventManager.onSelect += OnSelect; // Start listening to when other game objects get selected
-        EventManager.onMove += OnMove; // Start listening to when the Player wants to move this soldier
-        EventManager.onAttack += OnAttack;
+
+        ListenToEvents();
     }
 
 
@@ -230,19 +226,16 @@ public class SoldierController : PersonController
     /// <summary>
     /// This function runs when the player left-clicks/selects any object, which means this soldier will become unselected
     /// </summary>
-    protected void OnSelect()
+    protected virtual void OnSelect()
     {
         if (!squareSelected)
         {
-            EventManager.onSelect -= OnSelect; // Stop listening to the player selecting other objects since it doesn't matter
-            EventManager.onMove -= OnMove; // Stop listening to the player wanting to move the soldier since the soldier is not selected anymore
-            EventManager.onAttack -= OnAttack; // Stop listening to the player wanting to attack enemy soldiers since the soldier is unselected
+            StopListenToEvents();
             selectedSprite.SetActive(false); // Deactivate the selected sprite, since this soldier isn't selected any more
         } else
         {
             squareSelected = false;
         }
-        
     }
 
     protected void OnAttack(Transform targetTransform)
@@ -268,5 +261,25 @@ public class SoldierController : PersonController
         if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); }
         if (dragCoroutine != null) { StopCoroutine(dragCoroutine); }
+    }
+
+    /// <summary>
+    /// Start listening to events that I should be listening to
+    /// </summary>
+    protected virtual void ListenToEvents()
+    {
+        EventManager.onSelect += OnSelect;
+        EventManager.onMove += OnMove;
+        EventManager.onAttack += OnAttack;
+    }
+
+    /// <summary>
+    /// Stop listening to events that I can listen to
+    /// </summary>
+    protected virtual void StopListenToEvents()
+    {
+        EventManager.onSelect -= OnSelect;
+        EventManager.onMove -= OnMove;
+        EventManager.onAttack -= OnAttack;
     }
 }

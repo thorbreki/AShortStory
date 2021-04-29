@@ -559,6 +559,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 470e7cbc262c43441936a3b6e641a5e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movementSpeed: 2.3
+  moveAwayDistance: 1
+  gravityScale: 2
+  height: 0.5
+  objectInRightHandObject: {fileID: 4945351357962058637}
+  objectInLeftHandObject: {fileID: 1832651940882203457}
+  dragDistanceThreshold: 0.5
+  attackDistance: 0.8
+  selectedSprite: {fileID: 4127823743843510949}
+  damage: 1
 --- !u!1 &5789145874243305472
 GameObject:
   m_ObjectHideFlags: 0

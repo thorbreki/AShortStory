@@ -13,5 +13,7 @@ public class SelectScript : MonoBehaviour
     private void OnMouseUp()
     {
         EventManager.RaiseOnSelected(); // Let the world know that the background was selected and therefore everything else should be deselected
+        GameManager.instance.SetNumOfBuildersSelected(0);
+        GameManager.instance.SetNumOfSoldiersSelected(0);
     }
 }

@@ -22,6 +22,12 @@ public class EventManager : MonoBehaviour
     public delegate void OnAttack(Transform targetTransform);
     public static event OnAttack onAttack; // When the player tells selected soldiers to attack
 
+    public delegate void OnBuild(GameObject buildingObject);
+    public static event OnBuild onBuild; // When the player tells selected builders to build
+
+    public delegate void OnBuilderSelected();
+    public static event OnBuilderSelected onBuilderSelected; // When the player selects a builder
+
     /// <summary>
     /// Should be raised when a building is left-clicked by the Player
     /// </summary>
@@ -77,6 +83,22 @@ public class EventManager : MonoBehaviour
         if (onAttack != null)
         {
             onAttack(targetTransform);
+        }
+    }
+
+    public static void RaiseOnBuild(GameObject buildingObject)
+    {
+        if (onBuild != null)
+        {
+            onBuild(buildingObject);
+        }
+    }
+
+    public static void RaiseOnBuilderSelected()
+    {
+        if (onBuilderSelected != null)
+        {
+            onBuilderSelected();
         }
     }
 }
