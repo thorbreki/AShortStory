@@ -292,3 +292,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a618fcd38a8c674ea2666080db98980, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  transparentGreenSprite: {fileID: 0}
+  transparentRedSprite: {fileID: 0}
+  transparentYellowSprite: {fileID: 0}
+  spriteRenderer: {fileID: 9115312670592040220}
+  transparentGreen: {r: 0, g: 0, b: 0, a: 0}
+  transparentRed: {r: 0, g: 0, b: 0, a: 0}
+  transparentYellow: {r: 0, g: 0, b: 0, a: 0}
+  constructedColor: {r: 0, g: 0, b: 0, a: 0}
+  status: 0
+  setByGameMaker: 0

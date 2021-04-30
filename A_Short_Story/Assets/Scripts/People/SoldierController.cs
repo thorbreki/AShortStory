@@ -55,7 +55,6 @@ public class SoldierController : PersonController
 
     protected void OnMouseDown()
     {
-        print("ONMOUSEDOWN!");
         if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
         {
             mouseDown = true; // Specify that the soldier was indeed clicked on
@@ -68,7 +67,6 @@ public class SoldierController : PersonController
     // WHEN PLAYER LEFT CLICKS ON THE SOLDIER, THE PLAYER CAN THEN TELL THE SOLDIER WHAT TO DO
     protected void OnMouseUp()
     {
-        print("ONMOUSEUP!");
         if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army && mouseDown)
         {
 

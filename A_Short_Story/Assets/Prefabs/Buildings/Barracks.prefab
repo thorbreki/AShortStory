@@ -181,6 +181,7 @@ GameObject:
   - component: {fileID: 9115312670592040220}
   - component: {fileID: 7611533702216651055}
   - component: {fileID: 7395108891160341419}
+  - component: {fileID: 3043724258224904363}
   m_Layer: 8
   m_Name: Barracks
   m_TagString: Untagged
@@ -266,6 +267,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fadacdeba326b9248bf1aa612cba65c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  transparentGreenSprite: {fileID: 0}
+  transparentRedSprite: {fileID: 0}
+  transparentYellowSprite: {fileID: 0}
+  spriteRenderer: {fileID: 9115312670592040220}
+  transparentGreen: {r: 0.029884338, g: 1, b: 0, a: 0.5686275}
+  transparentRed: {r: 1, g: 0, b: 0, a: 0.5686275}
+  transparentYellow: {r: 1, g: 1, b: 0, a: 0.50980395}
+  constructedColor: {r: 0.6901961, g: 0.5058824, b: 0.34901962, a: 1}
+  status: 0
+  setByGameMaker: 0
 --- !u!61 &7395108891160341419
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -292,3 +303,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 5.12, y: 5.12}
   m_EdgeRadius: 0
+--- !u!50 &3043724258224904363
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8005926869817689646}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 7

@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7520343023550351003}
   - component: {fileID: 4351201927171429797}
-  - component: {fileID: 3117355289154992534}
   m_Layer: 8
   m_Name: VillageHousing
   m_TagString: Untagged
@@ -84,18 +83,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &3117355289154992534
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3312485071481482903}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fadacdeba326b9248bf1aa612cba65c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &6460566805459139925
 GameObject:
   m_ObjectHideFlags: 0
