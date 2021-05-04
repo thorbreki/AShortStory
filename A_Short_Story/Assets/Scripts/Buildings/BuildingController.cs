@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class BuildingController : MonoBehaviour
 {
+
     [Header("Sprites")]
     [SerializeField] protected Sprite transparentGreenSprite;
     [SerializeField] protected Sprite transparentRedSprite;
@@ -11,6 +12,8 @@ public class BuildingController : MonoBehaviour
 
     [Header("Components")]
     [SerializeField] protected SpriteRenderer spriteRenderer; // The sprite renderer component of thos building
+    [SerializeField] protected Transform healthBarTransform; // the healthbar game object
+    [SerializeField] protected HealthBarController healthBarController; // The controller script for the health bar
 
     [Header("Colors")]
     [SerializeField] Color transparentGreen;
@@ -18,15 +21,23 @@ public class BuildingController : MonoBehaviour
     [SerializeField] Color transparentYellow;
     [SerializeField] Color constructedColor;
 
-    // A vector that I can use for whatever
-    private Vector3 vector = Vector3.zero;
+    [Header("Attributes")]
+    [SerializeField] protected float maxHealth; // The max health of this building
+    [SerializeField] protected float constructionSpeed; // The speed of which how fast this building is constructed
+    protected float health = 0f;
+    protected int numOfBuildersWorkingOnMe = 0; // The number of builders that are working on me, defines how fast the health goes up
+
+    // Vectors that I can use for whatever
+    protected Vector3 vector = Vector3.zero;
+    protected Vector3 scaleVector = Vector3.zero;
 
     // The different statuses each building can have
     protected enum BuildingStatus
     {
         placing = 0, // The player is trying to find a good spot to place this building
         constructing = 1, // The player has found a good spot but has to construct this building
-        finished = 2 // The building is finished and ready to be used
+        finished = 2, // The building is finished and ready to be used
+        damaged = 3 // The building works but not as well as when it is finished
 
     }
 
@@ -43,6 +54,14 @@ public class BuildingController : MonoBehaviour
         {
             status = BuildingStatus.placing; // The status first starts off being placing since the player has to place the building somewhere
             spriteRenderer.color = transparentGreen;
+        } else
+        {
+            health = maxHealth;
+            scaleVector.y = 1;
+            scaleVector.z = 1;
+            scaleVector.x = 1;
+            print("Just set the healthBar to: " + health.ToString());
+            healthBarTransform.localScale = scaleVector;
         }
 
         // Make sure that the vector always have the right y and z coordinates by settig them in the beginning
@@ -57,7 +76,48 @@ public class BuildingController : MonoBehaviour
         {
             HandlePlacing();
         }
-        // Other statuses dont need to perform any operations in the Update function, so yay!
+        
+        if (status == BuildingStatus.constructing)
+        {
+            HandleHealth(); // Keep updating the health
+        }
+    }
+
+
+    /// <summary>
+    /// Adds to the current builders working on this building according to the parameter
+    /// </summary>
+    /// <param name="valueToAdd">The amount of builders that should be added to this buidling</param>
+    public void AddBuilderCount(int valueToAdd)
+    {
+        numOfBuildersWorkingOnMe += valueToAdd;
+    }
+
+    public bool GetBuildingIsConstructed()
+    {
+        return health >= maxHealth;
+    }
+
+    /// <summary>
+    /// Handles the health this building has by adding to it the amount of builders working on it to the construction speed
+    /// </summary>
+    protected void HandleHealth()
+    {
+        // When the health of this building becomes the maximum health, the building is finally constructed!
+        if (health >= maxHealth)
+        {
+            health = maxHealth;
+            status = BuildingStatus.finished;
+            spriteRenderer.color = constructedColor;
+            return;
+        }
+
+        // Update the health of this building according to the amount of builders working on it
+        health += numOfBuildersWorkingOnMe * constructionSpeed * Time.deltaTime;
+        scaleVector.y = 1;
+        scaleVector.z = 1;
+        scaleVector.x = health / maxHealth;
+        healthBarTransform.localScale = scaleVector;
     }
 
     /// <summary>
@@ -77,7 +137,7 @@ public class BuildingController : MonoBehaviour
         status = BuildingStatus.constructing;
         spriteRenderer.color = transparentYellow;
 
-        // SHOULD RAISE A CONSTRUCTME EVENT OR SOMETHING WITH THIS OBJECT'S TRANSFORM AND THIS SCRIPT AS WELL SO THE BUILDERS CAN ACCESS IT
+        EventManager.RaiseOnConstructMe(transform, this);
     }
 
 
@@ -101,9 +161,17 @@ public class BuildingController : MonoBehaviour
     /// </summary>
     protected virtual void OnMouseDown()
     {
+        // When the player tries to place the building
         if (status == BuildingStatus.placing)
         {
+            if (spriteRenderer.color != transparentGreen) { return; } // the player cannot place the building there
             ChangeToConstructing();
+        }
+
+        // When the player sends builders to construct the building
+        if (status == BuildingStatus.constructing)
+        {
+            EventManager.RaiseOnConstructMe(transform, this);
         }
 
         // When the building is constructed

@@ -9,7 +9,10 @@ public class SmithyController : BuildingController
         if ((GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army) && !GameManager.instance.GetPlayerIsHoveringUI())
         {
             base.OnMouseDown();
-            EventManager.RaiseOnSmithyClick(); // Raise the clicked-on-smithy event
+            if (status == BuildingStatus.finished)
+            {
+                EventManager.RaiseOnSmithyClick(); // Raise the clicked-on-smithy event
+            }
         }
     }
 }

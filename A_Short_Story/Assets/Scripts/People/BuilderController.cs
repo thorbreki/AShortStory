@@ -14,6 +14,7 @@ public class BuilderController : SoldierController
     // AFTER THAT, CREATE THE BUILDING MECHANISM
 
     [SerializeField] private float damage; // How much damage I do
+    private float buildingDistance = 5.1f;
 
     // Coroutine objects
     private Coroutine buildCoroutine; // For the BuildCor
@@ -31,64 +32,62 @@ public class BuilderController : SoldierController
     /// <summary>
     /// When the builder recieves a build event
     /// </summary>
-    protected void OnBuild(GameObject buildingObject)
+    protected void OnBuild(Transform buildingTransform, BuildingController buildingController)
     {
         StopCoroutines();
-        buildCoroutine = StartCoroutine(BuildCor(buildingObject));
+        buildCoroutine = StartCoroutine(BuildCor(buildingTransform, buildingController));
     }
 
     /// <summary>
     /// This coroutine gets called when the player has selected a building that he/she wants to build
     /// </summary>
     /// <returns></returns>
-    protected IEnumerator BuildCor(GameObject buildingObject)
+    protected IEnumerator BuildCor(Transform buildingTransform, BuildingController buildingController)
     {
+        // TODO: START WORKING ON THIS, THE BUILDER SHOULD RUN TO THE BUILDING AND START THE BUILDING ANIMATION, AND ADD TO THE NUMBER OF BUILDERS IN THE BUILDINGCONTROLLER
         yield return null;
-        //print("AttackCor started!");
-        //focusedEnemyTransform = targetTransform; // Set the transform so other methods know what enemy they are supposed to interact with
-        //bool notDisturbTimeAlreadySet = false;
+        print("BuildCor started!");
+        bool alreadyAddedMyself = false; // If I have already let the building know that I am building it
 
-        //// The loop runs until the enemy has been dealt with
-        //while (targetTransform != null)
-        //{
-        //    // This code runs when I am too far away from the enemy to attack
-        //    if (Vector2.Distance(transform.position, targetTransform.position) > attackDistance)
-        //    {
-        //        UpdateRotation(targetTransform.position.x);
-        //        doNotDisturb = false; // I'm not idle when walking
-        //        SetAnimationStatus(animationStatus.isWalking);
-        //        MoveStep(targetTransform);
-        //    }
+        // The loop runs until the building has been fully constructed
+        while (!buildingController.GetBuildingIsConstructed())
+        {
+        //    // This code runs when I am too far away from the building to build
+            if (Vector2.Distance(parentTransform.position, buildingTransform.position) > buildingDistance)
+            {
+                UpdateRotation(buildingTransform.position.x);
+                doNotDisturb = false; // I'm not idle when walking
+                SetAnimationStatus(animationStatus.isWalking);
+                MoveStep(buildingTransform);
+            }
 
-        //    // This code runs when I am close enough to my target to attack
-        //    else
-        //    {
-        //        if (!notDisturbTimeAlreadySet)
-        //        {
-        //            latestDoNotDisturbTime = Time.time;
-        //            notDisturbTimeAlreadySet = true;
-        //        }
-        //        doNotDisturb = true; // I am not to be disturbed when battling a dangerous foe!
-        //        SetAnimationStatus(animationStatus.isAttacking);
-        //    }
-        //    yield return null;
-        //}
-        //SetAnimationStatus(animationStatus.isIdle);
-        //focusedEnemyTransform = null; // I shouldn't focus on the enemy anymore since they're dead, hurray!
-        //doNotDisturb = true; // Idle yet again
-        //print("AttackCor finished!");
+            // This code runs when I am close enough to my target to build
+            else
+            {
+                if (!alreadyAddedMyself)
+                {
+                    SetAnimationStatus(animationStatus.isBuilding);
+                    buildingController.AddBuilderCount(1); // Let the building know I am helping to construct it
+                    alreadyAddedMyself = true;
+                }
+            }
+            yield return null;
+        }
+        SetAnimationStatus(animationStatus.isIdle);
+        doNotDisturb = false; // The builder is always going to allow other people to be in their personal space, for now at least
+        print("BuildCor finished!");
     }
 
     protected override void ListenToEvents()
     {
         base.ListenToEvents();
-        EventManager.onBuild += OnBuild;
+        EventManager.onConstructMe += OnBuild;
     }
 
     protected override void StopListenToEvents()
     {
         base.StopListenToEvents();
-        EventManager.onBuild -= OnBuild;
+        EventManager.onConstructMe -= OnBuild;
     }
 
     protected override void StopCoroutines()
@@ -102,6 +101,12 @@ public class BuilderController : SoldierController
         base.WhenSelected();
         //EventManager.RaiseOnBuilderSelected();
         GameManager.instance.IncreaseNumOfBuildersSelected();
+    }
+
+    protected override void OnTriggerStay2D(Collider2D collision)
+    {
+        // Dont do anything since builders are supposed to allow other people into their personal space, for now at least!
+        //base.OnTriggerStay2D(collision);
     }
 
     /// <summary>

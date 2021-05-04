@@ -10,8 +10,11 @@ public class BarracksController : BuildingController
         if ((GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army) && !GameManager.instance.GetPlayerIsHoveringUI())
         {
             base.OnMouseDown(); // Do all general stuff
-
-            EventManager.RaiseOnBarrackClick(); // Raise the clicked-on-barrack event
+            
+            if (status == BuildingStatus.finished)
+            {
+                EventManager.RaiseOnBarrackClick(); // Raise the clicked-on-barrack event
+            }
         }
     }
 }

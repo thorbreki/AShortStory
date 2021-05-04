@@ -133,7 +133,7 @@ public class PersonController : MonoBehaviour
     /// This is a function that currently only moves me from other soldiers if I am invading their personal space
     /// </summary>
     /// <param name="collision"></param>
-    protected void OnTriggerStay2D(Collider2D collision)
+    protected virtual void OnTriggerStay2D(Collider2D collision)
     {
         // Must make sure that I'm not in any other fellow soldier's personal space. It is very important for one's mental health!
         if (doNotDisturb) // Only move from other soldier's if I don't want to be disturbed

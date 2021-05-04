@@ -16,9 +16,5 @@ public class UIHoverChecker : MonoBehaviour
 
         // It will turn true if hovering over any UI elements
         GameManager.instance.SetPlayerIsHoveringUI(EventSystem.current.IsPointerOverGameObject());
-        if (EventSystem.current.IsPointerOverGameObject())
-        {
-            print("HOVERING OOOVEER!");
-        }
     }
 }

@@ -95,15 +95,12 @@ public class CanvasController : MonoBehaviour
     // THIS COROUTINE MAKES THE MENU GO UP, OVER THE CANVAS AND SET IT AS INACTIVE
     private IEnumerator AscendMenuCoroutine(GameObject menuObject, RectTransform inputTransform, Vector3 targetPosition, float speed, float threshold)
     {
-
-        print("starting");
         while (Vector2.Distance(inputTransform.anchoredPosition, targetPosition) > threshold)
         {
             inputTransform.anchoredPosition = Vector3.Lerp(inputTransform.anchoredPosition, targetPosition, speed);
             yield return null;
         }
         inputTransform.anchoredPosition = targetPosition;
-        Debug.Log("AscendMenu is done!");
         menuObject.SetActive(false);
     }
 
