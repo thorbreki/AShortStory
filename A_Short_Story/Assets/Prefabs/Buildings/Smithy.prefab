@@ -494,11 +494,11 @@ MonoBehaviour:
   transparentYellowSprite: {fileID: 0}
   spriteRenderer: {fileID: 9115312670592040220}
   healthBarTransform: {fileID: 8027683363701250591}
-  healthBarController: {fileID: 0}
-  transparentGreen: {r: 0, g: 0, b: 0, a: 0}
-  transparentRed: {r: 0, g: 0, b: 0, a: 0}
-  transparentYellow: {r: 0, g: 0, b: 0, a: 0}
-  constructedColor: {r: 0, g: 0, b: 0, a: 0}
+  healthBarObject: {fileID: 1014606197832430066}
+  transparentGreen: {r: 0.03137255, g: 1, b: 0, a: 0.5686275}
+  transparentRed: {r: 1, g: 0, b: 0, a: 0.5686275}
+  transparentYellow: {r: 1, g: 1, b: 0, a: 0.50980395}
+  constructedColor: {r: 0.78431374, g: 0.63529414, b: 0.5137255, a: 1}
   maxHealth: 3
   constructionSpeed: 1
   status: 0

@@ -13,7 +13,7 @@ public class BuildingController : MonoBehaviour
     [Header("Components")]
     [SerializeField] protected SpriteRenderer spriteRenderer; // The sprite renderer component of thos building
     [SerializeField] protected Transform healthBarTransform; // the healthbar game object
-    [SerializeField] protected HealthBarController healthBarController; // The controller script for the health bar
+    [SerializeField] protected GameObject healthBarObject; // The parent health bar object
 
     [Header("Colors")]
     [SerializeField] Color transparentGreen;
@@ -60,8 +60,9 @@ public class BuildingController : MonoBehaviour
             scaleVector.y = 1;
             scaleVector.z = 1;
             scaleVector.x = 1;
-            print("Just set the healthBar to: " + health.ToString());
             healthBarTransform.localScale = scaleVector;
+            // Set health bar to invinsible
+            healthBarObject.SetActive(false);
         }
 
         // Make sure that the vector always have the right y and z coordinates by settig them in the beginning
@@ -109,6 +110,8 @@ public class BuildingController : MonoBehaviour
             health = maxHealth;
             status = BuildingStatus.finished;
             spriteRenderer.color = constructedColor;
+            // Set the health bar to invinsible
+            healthBarObject.SetActive(false);
             return;
         }
 

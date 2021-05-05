@@ -48,9 +48,10 @@ public class SoldierController : PersonController
 
     }
 
-    protected void OnDestroy()
+    protected virtual void OnDestroy()
     {
         StopListenToEvents();
+        StopCoroutines();
     }
 
     protected void OnMouseDown()
@@ -215,8 +216,9 @@ public class SoldierController : PersonController
     /// </summary>
     protected void OnMove(float targetX)
     {
-        if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); } // Make sure that no other instances of move coroutine are active
-        if (attackCoroutine != null) { StopCoroutine(attackCoroutine); } // I should definitely stop attacking and go to where the god wants me to
+        //if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); } // Make sure that no other instances of move coroutine are active
+        //if (attackCoroutine != null) { StopCoroutine(attackCoroutine); } // I should definitely stop attacking and go to where the god wants me to
+        StopCoroutines();
 
         moveToCoroutine = StartCoroutine(MoveToCor(targetX)); // Start the move to coroutine and store the object for future checks
     }
@@ -238,8 +240,9 @@ public class SoldierController : PersonController
 
     protected void OnAttack(Transform targetTransform)
     {
-        if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
-        if (attackCoroutine != null) { StopCoroutine(attackCoroutine); } // Stop attacking someone else and focus on my new target
+        //if (moveToCoroutine != null) { StopCoroutine(moveToCoroutine); }
+        //if (attackCoroutine != null) { StopCoroutine(attackCoroutine); } // Stop attacking someone else and focus on my new target
+        StopCoroutines();
         attackCoroutine = StartCoroutine(AttackCor(targetTransform));
     }
 

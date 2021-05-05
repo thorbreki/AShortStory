@@ -16,6 +16,9 @@ public class BuilderController : SoldierController
     [SerializeField] private float damage; // How much damage I do
     private float buildingDistance = 5.1f;
 
+    private bool addedMyselfToBuilding = false; // Have I already added myself to the construction of a building?
+    private BuildingController currBuildingController; // The building controller component of the building I am building
+
     // Coroutine objects
     private Coroutine buildCoroutine; // For the BuildCor
 
@@ -47,6 +50,7 @@ public class BuilderController : SoldierController
         // TODO: START WORKING ON THIS, THE BUILDER SHOULD RUN TO THE BUILDING AND START THE BUILDING ANIMATION, AND ADD TO THE NUMBER OF BUILDERS IN THE BUILDINGCONTROLLER
         yield return null;
         print("BuildCor started!");
+        currBuildingController = buildingController;
         bool alreadyAddedMyself = false; // If I have already let the building know that I am building it
 
         // The loop runs until the building has been fully constructed
@@ -69,13 +73,28 @@ public class BuilderController : SoldierController
                     SetAnimationStatus(animationStatus.isBuilding);
                     buildingController.AddBuilderCount(1); // Let the building know I am helping to construct it
                     alreadyAddedMyself = true;
+                    addedMyselfToBuilding = true; // I have to remember that I am constructing a building
                 }
             }
             yield return null;
         }
         SetAnimationStatus(animationStatus.isIdle);
         doNotDisturb = false; // The builder is always going to allow other people to be in their personal space, for now at least
+        addedMyselfToBuilding = false;
         print("BuildCor finished!");
+    }
+
+    /// <summary>
+    /// If I am currently building and suddenly should stop, this function has to be called to let the building know and other important stuff to happen
+    /// </summary>
+    protected void HandleStopBuilding()
+    {
+        if (addedMyselfToBuilding)
+        {
+            currBuildingController.AddBuilderCount(-1);
+            currBuildingController = null;
+            addedMyselfToBuilding = false;
+        }
     }
 
     protected override void ListenToEvents()
@@ -94,6 +113,8 @@ public class BuilderController : SoldierController
     {
         base.StopCoroutines();
         if (buildCoroutine != null) { StopCoroutine(buildCoroutine); }
+
+        HandleStopBuilding();
     }
 
     protected override void WhenSelected()
