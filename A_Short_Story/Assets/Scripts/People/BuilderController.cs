@@ -14,7 +14,7 @@ public class BuilderController : SoldierController
     // AFTER THAT, CREATE THE BUILDING MECHANISM
 
     [SerializeField] private float damage; // How much damage I do
-    private float buildingDistance = 5.1f;
+    private float buildingDistance = 6f;
 
     private bool addedMyselfToBuilding = false; // Have I already added myself to the construction of a building?
     private BuildingController currBuildingController; // The building controller component of the building I am building
@@ -52,14 +52,16 @@ public class BuilderController : SoldierController
         print("BuildCor started!");
         currBuildingController = buildingController;
         bool alreadyAddedMyself = false; // If I have already let the building know that I am building it
+        float targetXPosition = Random.Range(buildingTransform.position.x - buildingDistance, buildingTransform.position.x + buildingDistance);
+        print("TARGET X POSITION: " + targetXPosition.ToString());
 
         // The loop runs until the building has been fully constructed
         while (!buildingController.GetBuildingIsConstructed())
         {
         //    // This code runs when I am too far away from the building to build
-            if (Vector2.Distance(parentTransform.position, buildingTransform.position) > buildingDistance)
+            if (Mathf.Abs(parentTransform.position.x - targetXPosition) > 0.1f)
             {
-                UpdateRotation(buildingTransform.position.x);
+                UpdateRotation(targetXPosition);
                 doNotDisturb = false; // I'm not idle when walking
                 SetAnimationStatus(animationStatus.isWalking);
                 MoveStep(buildingTransform);
@@ -117,12 +119,10 @@ public class BuilderController : SoldierController
         HandleStopBuilding();
     }
 
-    protected override void WhenSelected()
-    {
-        base.WhenSelected();
-        //EventManager.RaiseOnBuilderSelected();
-        GameManager.instance.IncreaseNumOfBuildersSelected();
-    }
+    //protected override void WhenSelected()
+    //{
+    //    base.WhenSelected();
+    //}
 
     protected override void OnTriggerStay2D(Collider2D collision)
     {
@@ -133,9 +133,8 @@ public class BuilderController : SoldierController
     /// <summary>
     /// This function runs when this builder is deselected
     /// </summary>
-    protected override void OnSelect()
-    {
-        base.OnSelect();
-        GameManager.instance.DecreaseNumOfBuildersSelected();
-    }
+    //protected override void OnSelect()
+    //{
+    //    base.OnSelect();
+    //}
 }

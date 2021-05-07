@@ -232,7 +232,8 @@ public class SoldierController : PersonController
         {
             StopListenToEvents();
             selectedSprite.SetActive(false); // Deactivate the selected sprite, since this soldier isn't selected any more
-        } else
+        }
+        else
         {
             squareSelected = false;
         }

@@ -24,18 +24,16 @@ public class SwordsmanController : SoldierController
     /// <summary>
     /// When soldier gets unselected
     /// </summary>
-    protected override void OnSelect()
-    {
-        base.OnSelect();
-        GameManager.instance.DecreaseNumOfSoldiersSelected();
-    }
+    //protected override void OnSelect()
+    //{
+    //    base.OnSelect();
+    //}
 
     /// <summary>
     /// When soldier gets selected
     /// </summary>
-    protected override void WhenSelected()
-    {
-        base.WhenSelected();
-        GameManager.instance.IncreaseNumOfSoldiersSelected();
-    }
+    //protected override void WhenSelected()
+    //{
+    //    base.WhenSelected();
+    //}
 }

@@ -25,8 +25,11 @@ public class EventManager : MonoBehaviour
     public delegate void OnConstructMe(Transform buildingTransform, BuildingController buildingController);
     public static event OnConstructMe onConstructMe; // When the player tells selected builders to build
 
-    public delegate void OnBuilderSelected();
-    public static event OnBuilderSelected onBuilderSelected; // When the player selects a builder
+    public delegate void OnPlayerModeChanged(Constants.PlayerMode newPlayerMode);
+    public static event OnPlayerModeChanged onPlayerModeChanged; // When the game changes from one player mode to another
+
+    //public delegate void OnBuilderSelected();
+    //public static event OnBuilderSelected onBuilderSelected; // When the player selects a builder
 
     /// <summary>
     /// Should be raised when a building is left-clicked by the Player
@@ -94,11 +97,19 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    public static void RaiseOnBuilderSelected()
+    public static void RaiseOnPlayerModeChanged(Constants.PlayerMode newPlayerMode)
     {
-        if (onBuilderSelected != null)
+        if (onPlayerModeChanged != null)
         {
-            onBuilderSelected();
+            onPlayerModeChanged(newPlayerMode);
         }
     }
+
+    //public static void RaiseOnBuilderSelected()
+    //{
+    //    if (onBuilderSelected != null)
+    //    {
+    //        onBuilderSelected();
+    //    }
+    //}
 }

@@ -150,7 +150,6 @@ public class BuildingController : MonoBehaviour
 
         // If the building is not colliding with anything in the back layer, the sprite should be transparent green
         spriteRenderer.color = transparentRed;
-        print("colliding with: " + collision.name);
     }
 
     protected void OnTriggerExit2D(Collider2D collision)
