@@ -9,6 +9,7 @@ public class CanvasController : MonoBehaviour
     [SerializeField] private GameObject smithyMenuObject; // The menu that drops down when Player clicks on a Smithy
     [SerializeField] private GameObject builderMenuObject; // The menu that drops down when Player selects a builder
     [SerializeField] private GameObject builderMenuDescriptionText; // The description text in the builder menu
+    [SerializeField] private GameObject powerBarObject; // The player's power bar UI object
 
     [Header("RectTransforms")]
     [SerializeField] private RectTransform barracksMenuRectTransform; // The Rect Transform component of the barracksMenu object
@@ -45,6 +46,7 @@ public class CanvasController : MonoBehaviour
         builderMenuDescendPosition = new Vector2(startingPosition.x, 175);
 
         MoveBuilderMenu(builderMenuActivePosition); // The game always begins in Army Mode for now so this works
+        powerBarObject.SetActive(false); // The player's power bar should not be seen when commanding armies
 
         EventManager.onBarrackClick += OnBarrackClick; // Listen to when Player clicks on the Barrack
         EventManager.onSmithyClick += OnSmithyClick; // Listen to when Player clicks on the Smithy
@@ -111,9 +113,19 @@ public class CanvasController : MonoBehaviour
         if (newPlayerMode == Constants.PlayerMode.Army)
         {
             MoveBuilderMenu(builderMenuActivePosition); // Smoothly move the builder menu to its active positioning
-        } else
+            powerBarObject.SetActive(false); // The player's power bar should not be seen when commanding armies
+        }
+
+        else if (newPlayerMode == Constants.PlayerMode.Battle)
         {
-           MoveBuilderMenu(startingPosition); // Smoothly move the builder menu to its start position
+            powerBarObject.SetActive(true); // The player's power bar should be seen when in battle mode
+            MoveBuilderMenu(startingPosition); // The player cannot build when in battle mode
+        }
+
+        else
+        {
+            MoveBuilderMenu(startingPosition); // Smoothly move the builder menu to its start position
+            powerBarObject.SetActive(false); // power bar should not be active in other player modes
         }
     }
 

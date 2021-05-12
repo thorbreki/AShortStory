@@ -4,10 +4,30 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    
-    [SerializeField] private int movementSpeed = 0; // The speed of the Player's movement
+    [Header("Objects")]
     [SerializeField] private GameObject selectSoldiersSquareObject; // The square that the player can use to select many soldiers
-    private Vector2 movementVector = new Vector2(0, 0); // The vector of the Player's movement
+    [SerializeField] private GameObject playerAttackEffect; // The effect that spawns when player damages enemy
+
+    [Header("Variables")]
+    [SerializeField] private int movementSpeed = 0; // The speed of the Player's movement
+    [SerializeField] private float powerIncreaseSpeed = 0.05f; // The speed of how much power the player gains
+
+    private Vector3 effectVector = Vector3.zero; // The vector that I use to spawn in effects nicely without using the new keyword too often
+
+
+    private void Start()
+    {
+        // Listen to events
+        EventManager.onEnemyDamagedByPlayer += OnEnemyDamagedByPlayer;
+
+        // Set up all relevant variables
+        effectVector.z = -1;
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.onEnemyDamagedByPlayer -= OnEnemyDamagedByPlayer;
+    }
 
     // Update is called once per frame
     private void Update()
@@ -15,14 +35,14 @@ public class PlayerController : MonoBehaviour
         if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
         {
             HandleMoveSoldiers(); // Handle the player wanting to move soldiers to specific positions
-            HandleSelectSoldiersSquareSpawn();
+            HandleSelectSoldiersSquareSpawn(); // Handle the player being able to select multiple soldiers at a time with the square select method
+            HandleChangePlayerMode(); // Handle the player wanting to change the player mode of the game
+        } else if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
+        {
+            HandleChangePlayerMode(); // Handle the player being able to change the player mode of the game
         }
-        //// The Player can only move when the Player Mode = Battle Mode
-        //else if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
-        //{
-        //    HandleMoveVector();
-        //    transform.Translate(movementVector * Time.deltaTime);
-        //}
+
+        HandlePowerUpdate(); // update the player's power value
     }
 
     /// <summary>
@@ -40,7 +60,6 @@ public class PlayerController : MonoBehaviour
             {
                 GameManager.instance.SetOnMoveShouldBeRaised(true); // Set it otherwise to true since that should be the default value
             }
-            
         }
     }
 
@@ -60,36 +79,52 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // TAKE INPUT FROM THE PLAYER AND CREATE THE VECTOR THAT WILL BE THE MOVEMENT OF THE PLAYER
-    //private void HandleMoveVector()
-    //{
-    //    if (Input.GetKey(KeyCode.A))
-    //    {
-    //        movementVector.x = -movementSpeed;
-    //    }
-    //    else if (Input.GetKey(KeyCode.D))
-    //    {
-    //        movementVector.x = movementSpeed;
-    //    }
-    //    else
-    //    {
-    //        movementVector.x = 0;
-    //    }
-    //}
+
+    /// <summary>
+    /// This function handles changing between player modes when the player wants to
+    /// </summary>
+    private void HandleChangePlayerMode()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
+            {
+                GameManager.instance.SetPlayerMode(Constants.PlayerMode.Battle);
+            }
+            else
+            {
+                GameManager.instance.SetPlayerMode(Constants.PlayerMode.Army);
+            }
+        }
+    }
 
 
-    // ------------------------------------------------------------------- SCRAPPED
-    //private void HandlePlayerMode()
-    //{
-    //    if (Input.GetKeyDown(KeyCode.Tab))
-    //    {
-    //        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
-    //        {
-    //            GameManager.instance.SetPlayerMode(Constants.PlayerMode.Army);
-    //            movementVector.x = 0;
-    //        }
-    //        else
-    //            GameManager.instance.SetPlayerMode(Constants.PlayerMode.Battle);
-    //    }
-    //}
+    /// <summary>
+    /// This function handles the continuous growth of the player's power throughout the game
+    /// </summary>
+    private void HandlePowerUpdate()
+    {
+        if (GameManager.instance.GetPlayerCurrPower() == GameManager.instance.GetPlayerMaxPower()) { return; } // Don't update the power value if it is already full
+
+        GameManager.instance.IncreasePlayerPower(powerIncreaseSpeed * Time.deltaTime); // Increase power level
+
+        if (GameManager.instance.GetPlayerCurrPower() > GameManager.instance.GetPlayerMaxPower())
+        {
+            GameManager.instance.SetPlayerPower(GameManager.instance.GetPlayerMaxPower());
+        }
+    }
+
+
+    /// <summary>
+    /// When the player actually damages an enemy
+    /// </summary>
+    private void OnEnemyDamagedByPlayer()
+    {
+        GameManager.instance.ReducePlayerPower(GameManager.instance.GetPlayerPowerReduction()); // Reduce the power of the player since this was an attack from the player
+        GameObject attackEffect = Instantiate(playerAttackEffect);
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mousePosition.z = -1;
+
+        attackEffect.transform.position = mousePosition;
+    }
 }

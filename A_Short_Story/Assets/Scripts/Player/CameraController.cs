@@ -5,7 +5,6 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     // PLAYER VARIABLES
-    [SerializeField] private Transform playerTransform; // The Transform component of the Player
     [SerializeField] private float battleModeFOV = 5f; // The camera's Field of View when player is in Battle Mode
     [SerializeField] private float armyModeFOV = 5f; // The camera's Field of View when player is in Army Mode
     [SerializeField] private float maxFOV = 10f; // The camera's maximum possible Field of View
@@ -46,21 +45,15 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
+        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army || GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
         {
-            ArmyMode();
-        }
-        else if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
-        {
-            cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, battleModeFOV, zoomSpeed); // Zoom in
-            targetPosition.x = Mathf.Lerp(transform.position.x, playerTransform.position.x, 0.2f); // Smoothly Lerp to player, can't use Coroutine since targetPosition could move while Smooth Lerping is taking place
-            transform.position = targetPosition; // Set the position of camera to the position obtained from the Smooth Lerp
+            FreeLook();
         }
     }
 
 
-    // MAKE CAMERA FUNCTION ACCORDINGLY WHEN PLAYER IS IN ARMY MODE (ARMY MODE)
-    private void ArmyMode()
+    // MAKE CAMERA FUNCTION ACCORDINGLY WHEN PLAYER IS IN ARMY MODE AND BATTLE MODE
+    private void FreeLook()
     {
         // Handle change in camera zoom
         HandleZoom();
@@ -133,35 +126,3 @@ public class CameraController : MonoBehaviour
         smoothLerpCoroutine = StartCoroutine(Utils.SmoothLerpPosition(transform, new Vector3(buildingPosition.x, transform.position.y, transform.position.z), 0.2f, 0.05f));
     }
 }
-
-
-// --------------------------------------------------------------------- SCRAPPED
-// MAKE THE CAMERA FOLLOW THE PLAYER'S POSITION (BATTLE MODE)
-//private void BattleMode()
-//{
-//    cameraComponent.orthographicSize = Mathf.Lerp(cameraComponent.orthographicSize, battleModeFOV, zoomSpeed); // Lerp the camera's FOV to get a nice smooth zoom-in effect
-//    // targetPosition.x = Lerp(startingNum, playerTransform.position.x, 1f);
-//    targetPosition.x = Mathf.Lerp(transform.position.x, playerTransform.position.x, 0.1f);
-//    targetPosition.y = playerTransform.position.y;
-//    transform.position = targetPosition;
-//}
-
-// THIS FUNCTION RUNS WHEN THE PLAYER SELECTS A BUILDING, THE CAMERA THEN ONLY FOCUSES ON THAT BUILDING, NOTHING ELSE
-//private void FocusOnBuilding()
-//{
-
-//}
-
-// SMOOTHLY LERP THE CAMERA'S X POSITION TO TARGET X POSITION (STOPS WHEN CLOSE ENOUGH TO THE TARGET)
-    //private IEnumerator SmoothLerpPosition(Vector3 inputPosition)
-    //{
-    //    targetPosition.x = inputPosition.x;
-    //    while (Mathf.Abs(transform.position.x - targetPosition.x) > 0.01f)
-    //    {
-    //        transform.position = Vector3.Lerp(transform.position, targetPosition, 0.2f);
-    //        yield return null;
-    //    }
-
-    //    transform.position = targetPosition;
-    //    print("SmoothLerpPosition is done!");
-    //}

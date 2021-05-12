@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gravity: 0.2
-  canvasController: {fileID: 0}
   builderMenuObject: {fileID: 0}
   builderMenuRectTransform: {fileID: 0}
+  canvasController: {fileID: 0}
+  playerAttackDamage: 1

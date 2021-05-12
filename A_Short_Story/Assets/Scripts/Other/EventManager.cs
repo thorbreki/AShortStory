@@ -28,6 +28,9 @@ public class EventManager : MonoBehaviour
     public delegate void OnPlayerModeChanged(Constants.PlayerMode newPlayerMode);
     public static event OnPlayerModeChanged onPlayerModeChanged; // When the game changes from one player mode to another
 
+    public delegate void OnEnemyDamagedByPlayer();
+    public static event OnEnemyDamagedByPlayer onEnemyDamagedByPlayer; // When the player damages an enemy directly 
+
     //public delegate void OnBuilderSelected();
     //public static event OnBuilderSelected onBuilderSelected; // When the player selects a builder
 
@@ -102,6 +105,14 @@ public class EventManager : MonoBehaviour
         if (onPlayerModeChanged != null)
         {
             onPlayerModeChanged(newPlayerMode);
+        }
+    }
+
+    public static void RaiseOnEnemyDamagedByPlayer()
+    {
+        if (onEnemyDamagedByPlayer != null)
+        {
+            onEnemyDamagedByPlayer();
         }
     }
 

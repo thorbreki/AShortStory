@@ -15,6 +15,11 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    private void OnMouseDown()
+    {
+        HandleTakingDamageFromPlayer(); // When the player left-clicks on me then I need to update my health
+    }
+
     /// <summary>
     /// Get this enemy's current health points
     /// </summary>
@@ -38,6 +43,19 @@ public class EnemyController : MonoBehaviour
         if (health <= 0f)
         {
             Destroy(gameObject);
+        }
+    }
+
+    /// <summary>
+    /// When the player damages me, this function runs
+    /// </summary>
+    private void HandleTakingDamageFromPlayer()
+    {
+        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
+        {
+            if (GameManager.instance.GetPlayerCurrPower() < GameManager.instance.GetPlayerPowerReduction()) { return; } // Don't do anything if player has not enough power
+            DamageMe(GameManager.instance.GetPlayerAttackDamage());
+            EventManager.RaiseOnEnemyDamagedByPlayer();
         }
     }
 }

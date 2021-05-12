@@ -8,12 +8,19 @@ public class GameManager : MonoBehaviour
     public static GameManager instance; // The singleton GameManager instance
 
     // PHYSICS
+    [Header("Physics")]
     [SerializeField] private float gravity; // The strength of the gravity in the game
 
     // UI
-    [SerializeField] private CanvasController canvasController; // The controller for the canvas
+    [Header("UI")]
     [SerializeField] private GameObject builderMenuObject; // The builder menu object
     [SerializeField] private RectTransform builderMenuRectTransform; // The builder menu RectTransform
+    [SerializeField] private CanvasController canvasController; // The controller for the canvas
+
+    [Header("Player")]
+    [SerializeField] private float playerMaxPower = 1f; // The maximum amount of power the player can have
+    [SerializeField] private float playerAttackDamage; // The amount of damage the player can deal to enemies
+    [SerializeField] private float playerPowerReduction = 0.2f; // The amount of power the player uses on a basic attack
 
     // PRIVATE VARIABLES
     private Constants.PlayerMode playerMode; // This is the variable that chooses what Player Mode is ongoing
@@ -21,6 +28,7 @@ public class GameManager : MonoBehaviour
     private bool onMoveShouldBeRaised = true; // This variable lets the PlayerController know if the OnMove event should be raised, resulting in soldiers moving to position
     private Vector3 buildingInteractionPosition; // This vector tells where the building the Player is interacting with is located
     private bool playerisHoveringUI; // This boolean tells whether or not the player is hovering over a UI element, if so the raycast should be blocked
+    private float playerCurrPower = 1f; // The current level of power the player has
 
     private void Awake()
     {
@@ -96,6 +104,42 @@ public class GameManager : MonoBehaviour
         return playerisHoveringUI;
     }
 
+    /// <summary>
+    /// Get how much the damage the player can deal to enemies
+    /// </summary>
+    /// <returns></returns>
+    public float GetPlayerAttackDamage()
+    {
+        return playerAttackDamage;
+    }
+
+    /// <summary>
+    /// Returns the amount of power the player has left
+    /// </summary>
+    /// <returns></returns>
+    public float GetPlayerCurrPower()
+    {
+        return playerCurrPower;
+    }
+
+    /// <summary>
+    /// Returns the amount of power the player loses when player attacks enemies
+    /// </summary>
+    /// <returns></returns>
+    public float GetPlayerPowerReduction()
+    {
+        return playerPowerReduction;
+    }
+
+    /// <summary>
+    /// Returns the maximum amount of power the player can have
+    /// </summary>
+    /// <returns></returns>
+    public float GetPlayerMaxPower()
+    {
+        return playerMaxPower;
+    }
+
     // -------------------------------------------------------------------
     // S E T T E R S
 
@@ -118,6 +162,7 @@ public class GameManager : MonoBehaviour
                 buildingInteractionPosition = Vector3.zero; // The player is not interacting with any buildings
                 break;
             case Constants.PlayerMode.Battle:
+                EventManager.RaiseOnSelected(); // All selected soldiers become unselected since the player is starting to attack
                 buildingInteractionPosition = Vector3.zero; // The player is not interacting with any buildings
                 break;
             default:
@@ -150,6 +195,33 @@ public class GameManager : MonoBehaviour
     public void SetPlayerIsHoveringUI(bool newBool)
     {
         playerisHoveringUI = newBool;
+    }
+
+    /// <summary>
+    /// Sets the player's current power to the new amount
+    /// </summary>
+    /// <param name="newAmount"></param>
+    public void SetPlayerPower(float newAmount)
+    {
+        playerCurrPower = newAmount;
+    }
+
+    /// <summary>
+    /// Reduces the power of the player by the amount that is given.
+    /// </summary>
+    /// <param name="amount">The amount of power the player should lose</param>
+    public void ReducePlayerPower(float amount)
+    {
+        playerCurrPower -= amount;
+    }
+
+    /// <summary>
+    /// Increases the power of the player by the amount that is given.
+    /// </summary>
+    /// <param name="amount">The amount of power the player should gain</param>
+    public void IncreasePlayerPower(float amount)
+    {
+        playerCurrPower += amount;
     }
 
     // -------------------------------------------------------------------
