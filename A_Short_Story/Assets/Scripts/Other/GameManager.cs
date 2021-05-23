@@ -17,10 +17,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private RectTransform builderMenuRectTransform; // The builder menu RectTransform
     [SerializeField] private CanvasController canvasController; // The controller for the canvas
 
+    // PLAYER
     [Header("Player")]
     [SerializeField] private float playerMaxPower = 1f; // The maximum amount of power the player can have
     [SerializeField] private float playerAttackDamage; // The amount of damage the player can deal to enemies
     [SerializeField] private float playerPowerReduction = 0.2f; // The amount of power the player uses on a basic attack
+    private int playerOreAmount = 0;
 
     // PRIVATE VARIABLES
     private Constants.PlayerMode playerMode; // This is the variable that chooses what Player Mode is ongoing
@@ -140,6 +142,15 @@ public class GameManager : MonoBehaviour
         return playerMaxPower;
     }
 
+    /// <summary>
+    /// Returns the amount of ore the player has
+    /// </summary>
+    /// <returns></returns>
+    public int GetPlayerOreAmount()
+    {
+        return playerOreAmount; 
+    }
+
     // -------------------------------------------------------------------
     // S E T T E R S
 
@@ -222,6 +233,16 @@ public class GameManager : MonoBehaviour
     public void IncreasePlayerPower(float amount)
     {
         playerCurrPower += amount;
+    }
+
+    /// <summary>
+    /// Add to the amount of ore the player has gathered
+    /// </summary>
+    /// <param name="amount">The amount that the current amount will be added by</param>
+    public void changePlayerOreAmount(int amountToAddTo)
+    {
+        playerOreAmount += amountToAddTo;
+        canvasController.UpdateOreAmountLabel();
     }
 
     // -------------------------------------------------------------------

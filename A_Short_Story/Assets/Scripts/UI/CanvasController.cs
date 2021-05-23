@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class CanvasController : MonoBehaviour
@@ -10,11 +11,15 @@ public class CanvasController : MonoBehaviour
     [SerializeField] private GameObject builderMenuObject; // The menu that drops down when Player selects a builder
     [SerializeField] private GameObject builderMenuDescriptionText; // The description text in the builder menu
     [SerializeField] private GameObject powerBarObject; // The player's power bar UI object
+    [SerializeField] private GameObject oreAmountLabelObject; // The ore label object
 
     [Header("RectTransforms")]
     [SerializeField] private RectTransform barracksMenuRectTransform; // The Rect Transform component of the barracksMenu object
     [SerializeField] private RectTransform smithyMenuRectTransform; // The Rect Transform component of the smithyMenu object
     [SerializeField] private RectTransform builderMenuRectTransform; // The Rect Transform component of the builderMenu object
+
+    [Header("UI components")]
+    [SerializeField] private TextMeshProUGUI oreAmountLabelText; // The text mesh pro component of the ore amount label
 
     [Header("Values")]
     [SerializeField] private float upHoverThreshold; // How close does the mouse pointer have to be to the height of the screen so the builder menu goes down
@@ -48,6 +53,7 @@ public class CanvasController : MonoBehaviour
         MoveBuilderMenu(builderMenuActivePosition); // The game always begins in Army Mode for now so this works
         powerBarObject.SetActive(false); // The player's power bar should not be seen when commanding armies
 
+        UpdateOreAmountLabel(); // Update the ore amount label so it is 0
         EventManager.onBarrackClick += OnBarrackClick; // Listen to when Player clicks on the Barrack
         EventManager.onSmithyClick += OnSmithyClick; // Listen to when Player clicks on the Smithy
         EventManager.onPlayerModeChanged += OnPlayerModeChanged; // Listen to when the player mode of the game changes
@@ -59,6 +65,15 @@ public class CanvasController : MonoBehaviour
         {
             HandleHoveringBuilderMenu();
         }
+    }
+
+
+    /// <summary>
+    /// Update the player's ore amount label so it changes when the ore amount changes
+    /// </summary>
+    public void UpdateOreAmountLabel()
+    {
+        oreAmountLabelText.text = "Ore: " + GameManager.instance.GetPlayerOreAmount().ToString();
     }
 
     // WHEN PLAYER CLICKS ON BARRACK THIS FUNCTION RUNS, ACTIVATES THE BARRACKS MENU

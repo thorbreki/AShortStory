@@ -13,14 +13,34 @@ public class BuilderController : SoldierController
     // OVERRIDE ALL FUNCTIONS YOU NEED TO MAKE THIS BUILDER ALSO LISTEN TO ONBUILD EVENT
     // AFTER THAT, CREATE THE BUILDING MECHANISM
 
+    [Header("Builder Attributes")]
     [SerializeField] private float damage; // How much damage I do
+    [SerializeField] private float mineSpeed = 0.1f; // How fast I mine
+    [SerializeField] private int maxOreCapacity = 6; // The maximum number of ores I can carry
+
+    [Header("Builder Objects")]
+    [SerializeField] private GameObject oreObject; // The ore I hold when my current ore amount has reached full capacity
+
+    // PROTECTED AND PRIVATE VARIABLES
+    protected float currOreAmount = 0f; // How much ore I have, from 0 to 1
+    protected Transform nearestSmithyTransform; // The nearest Smithy's transform component
+
     private float buildingDistance = 6f;
+
 
     private bool addedMyselfToBuilding = false; // Have I already added myself to the construction of a building?
     private BuildingController currBuildingController; // The building controller component of the building I am building
 
     // Coroutine objects
     private Coroutine buildCoroutine; // For the BuildCor
+    private Coroutine mineCoroutine; // For the MineCor
+
+
+    protected override void Start()
+    {
+        base.Start();
+        oreObject.SetActive(false);
+    }
 
     public override void DamageEnemy()
     {
@@ -47,7 +67,6 @@ public class BuilderController : SoldierController
     /// <returns></returns>
     protected IEnumerator BuildCor(Transform buildingTransform, BuildingController buildingController)
     {
-        // TODO: START WORKING ON THIS, THE BUILDER SHOULD RUN TO THE BUILDING AND START THE BUILDING ANIMATION, AND ADD TO THE NUMBER OF BUILDERS IN THE BUILDINGCONTROLLER
         yield return null;
         print("BuildCor started!");
         currBuildingController = buildingController;
@@ -64,7 +83,7 @@ public class BuilderController : SoldierController
                 UpdateRotation(targetXPosition);
                 doNotDisturb = false; // I'm not idle when walking
                 SetAnimationStatus(animationStatus.isWalking);
-                MoveStep(buildingTransform);
+                MoveStep(targetXPosition);
             }
 
             // This code runs when I am close enough to my target to build
@@ -87,6 +106,71 @@ public class BuilderController : SoldierController
     }
 
     /// <summary>
+    /// When the builder recieves a mine event, so they starts mining
+    /// </summary>
+    /// <param name="oreTransform"></param>
+    /// <param name="oreController"></param>
+    protected void OnMine(Transform oreTransform, OreController oreController)
+    {
+        StopCoroutines();
+        mineCoroutine = StartCoroutine(MineCor(oreTransform, oreController));
+    }
+
+
+    protected IEnumerator MineCor(Transform oreTransform, OreController oreController)
+    {
+        print("MineCor started!");
+        float targetOreXPosition = Random.Range(oreTransform.position.x - buildingDistance, oreTransform.position.x + buildingDistance); // Uses BuildCor code I know...
+        print("X position of the ore: " + oreTransform.position.x);
+        print("The target ore X position: " + targetOreXPosition);
+        float targetXPosition = 0f; // The target X position I will try to go to
+
+        doNotDisturb = false; // The builder is always going to allow other people to be in their personal space, for now at least
+
+        // This loops FOREVER! for now at least, while ores have infinite capacity
+        while (true)
+        {
+            // Figure out the targetXPosition
+            if (currOreAmount < maxOreCapacity)
+            {
+                targetXPosition = targetOreXPosition;
+            }
+            else
+            {
+                targetXPosition = oreController.getNearestSmithyTransform().position.x;
+            }
+
+            // This code runs when I am too far away from either the ore or the Smithy
+            if (Mathf.Abs(parentTransform.position.x - targetXPosition) > 0.1f)
+            {
+                UpdateRotation(targetXPosition);
+                SetAnimationStatus(animationStatus.isWalking);
+                MoveStep(targetXPosition);
+            }
+
+            // This code runs when I am close enough to the ore to mine
+            else if (Mathf.Abs(parentTransform.position.x - targetOreXPosition) < 0.1f)
+            {
+                SetAnimationStatus(animationStatus.isBuilding);
+                currOreAmount += mineSpeed * Time.deltaTime;
+
+                // Set the ore object to visible if I have enough ore
+                if (currOreAmount >= maxOreCapacity) { oreObject.SetActive(true); }
+            }
+
+            // When I am where the nearest Smithy is, so now I let go of the ore and increase the player's resources
+            else if (Mathf.Abs(parentTransform.position.x - oreController.getNearestSmithyTransform().position.x) < 0.1f)
+            {
+                SetAnimationStatus(animationStatus.isIdle);
+                currOreAmount = 0;
+                GameManager.instance.changePlayerOreAmount(maxOreCapacity);
+                oreObject.SetActive(false);
+            }
+            yield return null;
+        }
+    }
+
+    /// <summary>
     /// If I am currently building and suddenly should stop, this function has to be called to let the building know and other important stuff to happen
     /// </summary>
     protected void HandleStopBuilding()
@@ -103,38 +187,23 @@ public class BuilderController : SoldierController
     {
         base.ListenToEvents();
         EventManager.onConstructMe += OnBuild;
+        EventManager.onOreClicked += OnMine;
     }
 
     protected override void StopListenToEvents()
     {
         base.StopListenToEvents();
         EventManager.onConstructMe -= OnBuild;
+        EventManager.onOreClicked -= OnMine;
     }
 
     protected override void StopCoroutines()
     {
         base.StopCoroutines();
+        SetAnimationStatus(animationStatus.isIdle); // Just in case, at least mine coroutine needs it
         if (buildCoroutine != null) { StopCoroutine(buildCoroutine); }
+        if (mineCoroutine != null) { StopCoroutine(mineCoroutine); }
 
-        HandleStopBuilding();
+        HandleStopBuilding(); // Let the building that I am working on know that I have stopped working on it
     }
-
-    //protected override void WhenSelected()
-    //{
-    //    base.WhenSelected();
-    //}
-
-    protected override void OnTriggerStay2D(Collider2D collision)
-    {
-        // Dont do anything since builders are supposed to allow other people into their personal space, for now at least!
-        //base.OnTriggerStay2D(collision);
-    }
-
-    /// <summary>
-    /// This function runs when this builder is deselected
-    /// </summary>
-    //protected override void OnSelect()
-    //{
-    //    base.OnSelect();
-    //}
 }

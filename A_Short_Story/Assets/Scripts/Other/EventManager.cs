@@ -29,7 +29,16 @@ public class EventManager : MonoBehaviour
     public static event OnPlayerModeChanged onPlayerModeChanged; // When the game changes from one player mode to another
 
     public delegate void OnEnemyDamagedByPlayer();
-    public static event OnEnemyDamagedByPlayer onEnemyDamagedByPlayer; // When the player damages an enemy directly 
+    public static event OnEnemyDamagedByPlayer onEnemyDamagedByPlayer; // When the player damages an enemy directly
+
+    public delegate void OnOreClicked(Transform oreTransform, OreController oreController);
+    public static event OnOreClicked onOreClicked; // When the player left-clicks on an ore
+
+    public delegate void OnFindNearestSmithy(OreController oreController); // When the builder calls out for the nearest Smithy
+    public static event OnFindNearestSmithy onFindNearestSmithy;
+
+    public delegate void OnPlacingBuildingCancel(); // When the Player cancels wanting to place a new building
+    public static event OnPlacingBuildingCancel onPlacingBuildingCancel;
 
     //public delegate void OnBuilderSelected();
     //public static event OnBuilderSelected onBuilderSelected; // When the player selects a builder
@@ -113,6 +122,30 @@ public class EventManager : MonoBehaviour
         if (onEnemyDamagedByPlayer != null)
         {
             onEnemyDamagedByPlayer();
+        }
+    }
+
+    public static void RaiseOnOreClicked(Transform oreTransform, OreController oreController)
+    {
+        if (onOreClicked != null)
+        {
+            onOreClicked(oreTransform, oreController);
+        }
+    }
+
+    public static void RaiseOnFindNearestSmithy(OreController oreController)
+    {
+        if (onFindNearestSmithy != null)
+        {
+            onFindNearestSmithy(oreController);
+        }
+    }
+
+    public void RaiseOnPlacingBuildingCancel()
+    {
+        if (onPlacingBuildingCancel != null)
+        {
+            onPlacingBuildingCancel();
         }
     }
 

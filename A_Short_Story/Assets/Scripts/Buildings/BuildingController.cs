@@ -5,6 +5,9 @@ using UnityEngine;
 public class BuildingController : MonoBehaviour
 {
 
+    [Header("Game Objects")]
+    [SerializeField] protected GameObject cancelBuildingButtonObject;
+
     [Header("Sprites")]
     [SerializeField] protected Sprite transparentGreenSprite;
     [SerializeField] protected Sprite transparentRedSprite;
@@ -24,6 +27,7 @@ public class BuildingController : MonoBehaviour
     [Header("Attributes")]
     [SerializeField] protected float maxHealth; // The max health of this building
     [SerializeField] protected float constructionSpeed; // The speed of which how fast this building is constructed
+    [SerializeField] protected int maxOreNeeded; // The amount of ores the player needs to construct me
     protected float health = 0f;
     protected int numOfBuildersWorkingOnMe = 0; // The number of builders that are working on me, defines how fast the health goes up
 
@@ -47,13 +51,14 @@ public class BuildingController : MonoBehaviour
     [SerializeField] protected BuildingStatus status;
     [SerializeField] protected bool setByGameMaker = false;
 
-    protected void Start()
+    protected virtual void Start()
     {
         // If the game maker of this game has not explicitly set the status of this object, than you can do this
         if (!setByGameMaker)
         {
             status = BuildingStatus.placing; // The status first starts off being placing since the player has to place the building somewhere
             spriteRenderer.color = transparentGreen;
+            cancelBuildingButtonObject.SetActive(true); // When the building is already ready, then the button shouldn't be active
         } else
         {
             health = maxHealth;
@@ -63,7 +68,9 @@ public class BuildingController : MonoBehaviour
             healthBarTransform.localScale = scaleVector;
             // Set health bar to invinsible
             healthBarObject.SetActive(false);
+            cancelBuildingButtonObject.SetActive(false); // The button should be active when it spawns
         }
+
 
         // Make sure that the vector always have the right y and z coordinates by settig them in the beginning
         vector.y = transform.position.y;
@@ -97,6 +104,19 @@ public class BuildingController : MonoBehaviour
     public bool GetBuildingIsConstructed()
     {
         return health >= maxHealth;
+    }
+
+    /// <summary>
+    /// When the player clicks on the Cancel button before constructing the building
+    /// </summary>
+    public void CancelBuilding()
+    {
+        if (status == BuildingStatus.constructing)
+        {
+            GameManager.instance.changePlayerOreAmount(maxOreNeeded);
+        }
+
+        Destroy(gameObject);
     }
 
     /// <summary>
@@ -139,6 +159,7 @@ public class BuildingController : MonoBehaviour
     {
         status = BuildingStatus.constructing;
         spriteRenderer.color = transparentYellow;
+        GameManager.instance.changePlayerOreAmount(-maxOreNeeded);
 
         EventManager.RaiseOnConstructMe(transform, this);
     }
@@ -167,6 +188,7 @@ public class BuildingController : MonoBehaviour
         if (status == BuildingStatus.placing)
         {
             if (spriteRenderer.color != transparentGreen) { return; } // the player cannot place the building there
+            else if (GameManager.instance.GetPlayerOreAmount() < maxOreNeeded ) { return; }
             ChangeToConstructing();
         }
 
@@ -183,4 +205,16 @@ public class BuildingController : MonoBehaviour
             EventManager.RaiseOnBuildingClick(transform.position); // Raise the clicked-on-building event
         }
     }
+
+    //protected void OnMouseEnter()
+    //{
+    //    if (status == BuildingStatus.finished) { return; } // Dont set the cancel button as active if the building is already constructed
+
+    //    cancelBuildingButtonObject.SetActive(true);
+    //}
+
+    //protected void OnMouseExit()
+    //{
+    //    cancelBuildingButtonObject.SetActive(false); // Set the cancel button as inactive always
+    //}
 }

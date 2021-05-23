@@ -158,6 +158,25 @@ public class SoldierController : PersonController
         parentTransform.Translate(direction * Time.deltaTime, 0f, 0f);
     }
 
+    protected void MoveStep(float newXPosition)
+    {
+        // First find out if I want to go to the left or to the right
+        float direction;
+        if (newXPosition - transform.position.x > 0)
+        {
+            //parentTransform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            direction = movementSpeed;
+        }
+        else
+        {
+            //parentTransform.rotation = Quaternion.Euler(0f, 180f, 0f);
+            direction = -movementSpeed;
+        }
+
+        // Then move a little closer to my prey
+        parentTransform.Translate(direction * Time.deltaTime, 0f, 0f);
+    }
+
     /// <summary>
     /// Smoothly Lerps the soldier to the mouse's position, so the player can move this soldier around however the tides turn
     /// </summary>
