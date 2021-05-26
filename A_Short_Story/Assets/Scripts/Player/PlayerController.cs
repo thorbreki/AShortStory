@@ -36,13 +36,13 @@ public class PlayerController : MonoBehaviour
         {
             HandleMoveSoldiers(); // Handle the player wanting to move soldiers to specific positions
             HandleSelectSoldiersSquareSpawn(); // Handle the player being able to select multiple soldiers at a time with the square select method
-            HandleChangePlayerMode(); // Handle the player wanting to change the player mode of the game
         } else if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
         {
             HandleChangePlayerMode(); // Handle the player being able to change the player mode of the game
         }
 
         HandlePowerUpdate(); // update the player's power value
+        HandleChangePlayerMode(); // Handle the player wanting to change the player mode of the game
     }
 
     /// <summary>
@@ -85,16 +85,17 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void HandleChangePlayerMode()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
-            {
-                GameManager.instance.SetPlayerMode(Constants.PlayerMode.Battle);
-            }
-            else
-            {
-                GameManager.instance.SetPlayerMode(Constants.PlayerMode.Army);
-            }
+            GameManager.instance.SetPlayerMode(Constants.PlayerMode.Army);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            GameManager.instance.SetPlayerMode(Constants.PlayerMode.Battle);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            GameManager.instance.SetPlayerMode(Constants.PlayerMode.Building);
         }
     }
 

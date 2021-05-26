@@ -9,12 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7712128097099478708}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: CancelButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &7712128097099478708
 Transform:
@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 2196144331825710912}
   - component: {fileID: 5159068684230996543}
   - component: {fileID: 3167504043925004700}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: CancelText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -629,6 +629,7 @@ MonoBehaviour:
   maxHealth: 30
   constructionSpeed: 1
   maxOreNeeded: 0
+  canvasController: {fileID: 0}
   status: 0
   setByGameMaker: 0
 --- !u!61 &7395108891160341419
@@ -689,8 +690,9 @@ GameObject:
   - component: {fileID: 6557032525784209002}
   - component: {fileID: 5473602121525733586}
   - component: {fileID: 3427448860253454986}
-  - component: {fileID: 4833627526304449832}
-  m_Layer: 8
+  - component: {fileID: 1692500722401275261}
+  - component: {fileID: 2791824994766164250}
+  m_Layer: 0
   m_Name: CancelSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -788,7 +790,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &4833627526304449832
+--- !u!114 &1692500722401275261
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -801,6 +803,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentBuildingController: {fileID: 7611533702216651055}
+--- !u!50 &2791824994766164250
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8064404831163929319}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 7
 --- !u!1 &8579239453908434498
 GameObject:
   m_ObjectHideFlags: 0

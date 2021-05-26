@@ -40,8 +40,8 @@ public class EventManager : MonoBehaviour
     public delegate void OnPlacingBuildingCancel(); // When the Player cancels wanting to place a new building
     public static event OnPlacingBuildingCancel onPlacingBuildingCancel;
 
-    //public delegate void OnBuilderSelected();
-    //public static event OnBuilderSelected onBuilderSelected; // When the player selects a builder
+    public delegate void OnPlacingNewBuilding(); // When the player wants to place a new building (presses a button on the Builder Menu)
+    public static event OnPlacingNewBuilding onPlacingNewBuilding;
 
     /// <summary>
     /// Should be raised when a building is left-clicked by the Player
@@ -149,11 +149,11 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    //public static void RaiseOnBuilderSelected()
-    //{
-    //    if (onBuilderSelected != null)
-    //    {
-    //        onBuilderSelected();
-    //    }
-    //}
+    public static void RaiseOnPlacingNewBuilding()
+    {
+        if (onPlacingNewBuilding != null)
+        {
+            onPlacingNewBuilding();
+        }
+    }
 }

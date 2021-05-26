@@ -28,6 +28,11 @@ public class BuildingController : MonoBehaviour
     [SerializeField] protected float maxHealth; // The max health of this building
     [SerializeField] protected float constructionSpeed; // The speed of which how fast this building is constructed
     [SerializeField] protected int maxOreNeeded; // The amount of ores the player needs to construct me
+
+    [Header("UI")]
+    [SerializeField] protected CanvasController canvasController; // The canvas controller component
+
+    protected bool collidingWithOtherObjects = false; // To let the building know if it is colliding with objects so it can't be built
     protected float health = 0f;
     protected int numOfBuildersWorkingOnMe = 0; // The number of builders that are working on me, defines how fast the health goes up
 
@@ -59,6 +64,8 @@ public class BuildingController : MonoBehaviour
             status = BuildingStatus.placing; // The status first starts off being placing since the player has to place the building somewhere
             spriteRenderer.color = transparentGreen;
             cancelBuildingButtonObject.SetActive(true); // When the building is already ready, then the button shouldn't be active
+            EventManager.onPlacingNewBuilding += OnPlacingNewBuilding;
+
         } else
         {
             health = maxHealth;
@@ -71,10 +78,18 @@ public class BuildingController : MonoBehaviour
             cancelBuildingButtonObject.SetActive(false); // The button should be active when it spawns
         }
 
+        EventManager.onPlayerModeChanged += OnPlayerModeChanged; // Got to know when to disable and enable the cancel button
 
         // Make sure that the vector always have the right y and z coordinates by settig them in the beginning
         vector.y = transform.position.y;
         vector.z = transform.position.z;
+
+    }
+
+    protected virtual void OnDestroy()
+    {
+        EventManager.onPlayerModeChanged -= OnPlayerModeChanged;
+        EventManager.onPlacingNewBuilding -= OnPlacingNewBuilding;
     }
 
     protected void Update()
@@ -83,6 +98,12 @@ public class BuildingController : MonoBehaviour
         if (status == BuildingStatus.placing)
         {
             HandlePlacing();
+
+            // The building will be transparent red always, if the player does not have enough ores
+            if (GameManager.instance.GetPlayerOreAmount() < maxOreNeeded)
+            {
+                spriteRenderer.color = transparentRed;
+            }
         }
         
         if (status == BuildingStatus.constructing)
@@ -132,6 +153,7 @@ public class BuildingController : MonoBehaviour
             spriteRenderer.color = constructedColor;
             // Set the health bar to invinsible
             healthBarObject.SetActive(false);
+            cancelBuildingButtonObject.SetActive(false); // The player cannot cancel a building that is already constructed
             return;
         }
 
@@ -168,15 +190,16 @@ public class BuildingController : MonoBehaviour
     protected void OnTriggerStay2D(Collider2D collision)
     {
         if (status != BuildingStatus.placing) { return; } // Dont do anything if the player is not placing the building
-
-        // If the building is not colliding with anything in the back layer, the sprite should be transparent green
+        collidingWithOtherObjects = true;
         spriteRenderer.color = transparentRed;
     }
 
     protected void OnTriggerExit2D(Collider2D collision)
     {
         if (status != BuildingStatus.placing) { return; } // Dont do anything if the player is not placing the building
+        // If the building is not colliding with anything in the back layer, the sprite should be transparent green
         spriteRenderer.color = transparentGreen;
+        collidingWithOtherObjects = false;
     }
 
     /// <summary>
@@ -187,8 +210,16 @@ public class BuildingController : MonoBehaviour
         // When the player tries to place the building
         if (status == BuildingStatus.placing)
         {
-            if (spriteRenderer.color != transparentGreen) { return; } // the player cannot place the building there
-            else if (GameManager.instance.GetPlayerOreAmount() < maxOreNeeded ) { return; }
+            if (collidingWithOtherObjects) // the player cannot place the building there
+            {
+                GameManager.instance.DisplayBottomText("There are other objects in the way", 5f, transparentRed);
+                return;
+            } 
+            else if (GameManager.instance.GetPlayerOreAmount() < maxOreNeeded )
+            {
+                GameManager.instance.DisplayBottomText("Not enough ores", 5f, transparentRed);
+                return;
+            }
             ChangeToConstructing();
         }
 
@@ -206,15 +237,33 @@ public class BuildingController : MonoBehaviour
         }
     }
 
-    //protected void OnMouseEnter()
-    //{
-    //    if (status == BuildingStatus.finished) { return; } // Dont set the cancel button as active if the building is already constructed
+    protected void OnPlayerModeChanged(Constants.PlayerMode newPlayerMode)
+    {
+        if (status == BuildingStatus.finished) { return; } // Dont do anything if the building is already finished
 
-    //    cancelBuildingButtonObject.SetActive(true);
-    //}
+        if (newPlayerMode == Constants.PlayerMode.Building)
+        {
+            if (cancelBuildingButtonObject == null) { return; } // just making sure the cancel button exists
 
-    //protected void OnMouseExit()
-    //{
-    //    cancelBuildingButtonObject.SetActive(false); // Set the cancel button as inactive always
-    //}
+            cancelBuildingButtonObject.SetActive(true);
+        }
+        else
+        {
+            if (cancelBuildingButtonObject != null) { cancelBuildingButtonObject.SetActive(false); } // Disable the cancel button since player can only see it in Build mode
+
+            if (status == BuildingStatus.placing) { Destroy(gameObject); } // The player cannot place down a building if player is not in Building mode
+
+            EventManager.onPlacingNewBuilding -= OnPlacingNewBuilding;
+        }
+    }
+    
+    /// <summary>
+    /// This function runs when the player wants to place a new building
+    /// </summary>
+    protected void OnPlacingNewBuilding()
+    {
+        if (gameObject == null) { return; }
+        if (status == BuildingStatus.placing) { Destroy(gameObject); } // Die if the player chooses to place a different building
+    }
+
 }

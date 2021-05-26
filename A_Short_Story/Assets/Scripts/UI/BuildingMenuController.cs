@@ -36,7 +36,9 @@ public class BuildingMenuController : MonoBehaviour
     /// <param name="newBuildingObject"></param>
     public void SpawnUnconstructedBuilding(GameObject newBuildingObject)
     {
+        
         GameObject newBuilding = Instantiate(newBuildingObject);
         newBuilding.transform.position = new Vector3(Camera.main.transform.position.x, newBuilding.transform.position.y, newBuilding.transform.position.z);
+        EventManager.RaiseOnPlacingNewBuilding(); // Let other objects know that the player wants to place a new building
     }
 }

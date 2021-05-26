@@ -151,6 +151,17 @@ public class GameManager : MonoBehaviour
         return playerOreAmount; 
     }
 
+    /// <summary>
+    /// Displays a new string on the bottom of the screen, intended to be a detail text, for instance to say if something is wrong
+    /// </summary>
+    /// <param name="newText">The string the text will display</param>
+    /// <param name="duration">How long in seconds the text will be displayed</param>
+    /// <param name="newColor">The color of the text which will be displayed</param>
+    public void DisplayBottomText(string newText, float duration, Color newColor)
+    {
+        canvasController.DisplayBottomText(newText, duration, newColor);
+    }
+
     // -------------------------------------------------------------------
     // S E T T E R S
 
@@ -175,6 +186,11 @@ public class GameManager : MonoBehaviour
             case Constants.PlayerMode.Battle:
                 EventManager.RaiseOnSelected(); // All selected soldiers become unselected since the player is starting to attack
                 buildingInteractionPosition = Vector3.zero; // The player is not interacting with any buildings
+                break;
+            case Constants.PlayerMode.Building:
+                EventManager.RaiseOnSelected();
+                buildingInteractionPosition = Vector3.zero;
+
                 break;
             default:
                 break;

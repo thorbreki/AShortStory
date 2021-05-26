@@ -2,9 +2,10 @@ public static class Constants
 {
     public enum PlayerMode
     {
-        Battle,
-        Army,
-        BuildingInteraction
+        Battle = 0,
+        Army = 1,
+        BuildingInteraction = 2,
+        Building = 3
     }
 
     // Z positions of every type of objects in the game

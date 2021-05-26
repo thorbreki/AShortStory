@@ -45,7 +45,7 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army || GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Battle)
+        if (GameManager.instance.GetPlayerMode() != Constants.PlayerMode.BuildingInteraction)
         {
             FreeLook();
         }

@@ -10,17 +10,15 @@ public class SmithyController : BuildingController
         EventManager.onFindNearestSmithy += OnFindNearestSmithy;
     }
 
-    protected void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
         EventManager.onFindNearestSmithy -= OnFindNearestSmithy;
     }
 
     protected override void OnMouseDown()
     {
-        print("The player wants to put the building there!");
-        print(GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army);
-        print(!GameManager.instance.GetPlayerIsHoveringUI());
-        if ((GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army) && !GameManager.instance.GetPlayerIsHoveringUI())
+        if ((GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Building) && !GameManager.instance.GetPlayerIsHoveringUI())
         {
             base.OnMouseDown();
             if (status == BuildingStatus.finished)

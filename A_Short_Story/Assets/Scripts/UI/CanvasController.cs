@@ -12,6 +12,7 @@ public class CanvasController : MonoBehaviour
     [SerializeField] private GameObject builderMenuDescriptionText; // The description text in the builder menu
     [SerializeField] private GameObject powerBarObject; // The player's power bar UI object
     [SerializeField] private GameObject oreAmountLabelObject; // The ore label object
+    [SerializeField] private GameObject bottomTextObject; // The text in the bottom of the screen, used for detailing stuff
 
     [Header("RectTransforms")]
     [SerializeField] private RectTransform barracksMenuRectTransform; // The Rect Transform component of the barracksMenu object
@@ -20,6 +21,7 @@ public class CanvasController : MonoBehaviour
 
     [Header("UI components")]
     [SerializeField] private TextMeshProUGUI oreAmountLabelText; // The text mesh pro component of the ore amount label
+    [SerializeField] private TextMeshProUGUI bottomLabelText; // The text mesh pro ugui component of the bottom description label
 
     [Header("Values")]
     [SerializeField] private float upHoverThreshold; // How close does the mouse pointer have to be to the height of the screen so the builder menu goes down
@@ -41,6 +43,7 @@ public class CanvasController : MonoBehaviour
     private Coroutine descendMenuCoroutine; // The coroutine object for the descend menu coroutine
     private Coroutine moveBuilderMenuCoroutine; // The coroutine object for the move builder menu coroutine
     private Coroutine ascendMenuCoroutine; // The coroutine object for the ascend menu coroutine
+    private Coroutine displayBottomTextCoroutine; // The coroutine object for displaying the bottom text for a limited time
 
     private void Start()
     {
@@ -50,10 +53,11 @@ public class CanvasController : MonoBehaviour
         builderMenuActivePosition = new Vector2(startingPosition.x, 245);
         builderMenuDescendPosition = new Vector2(startingPosition.x, 175);
 
-        MoveBuilderMenu(builderMenuActivePosition); // The game always begins in Army Mode for now so this works
+        MoveBuilderMenu(startingPosition); // The game always begins in Army Mode for now so this works
         powerBarObject.SetActive(false); // The player's power bar should not be seen when commanding armies
 
         UpdateOreAmountLabel(); // Update the ore amount label so it is 0
+        DisableBottomText(); // Make sure that the bottom text is disabled
         EventManager.onBarrackClick += OnBarrackClick; // Listen to when Player clicks on the Barrack
         EventManager.onSmithyClick += OnSmithyClick; // Listen to when Player clicks on the Smithy
         EventManager.onPlayerModeChanged += OnPlayerModeChanged; // Listen to when the player mode of the game changes
@@ -61,7 +65,7 @@ public class CanvasController : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Army)
+        if (GameManager.instance.GetPlayerMode() == Constants.PlayerMode.Building)
         {
             HandleHoveringBuilderMenu();
         }
@@ -74,6 +78,48 @@ public class CanvasController : MonoBehaviour
     public void UpdateOreAmountLabel()
     {
         oreAmountLabelText.text = "Ore: " + GameManager.instance.GetPlayerOreAmount().ToString();
+    }
+
+    /// <summary>
+    /// Set the bottom text inactive, so it does not render
+    /// </summary>
+    public void DisableBottomText()
+    {
+        bottomTextObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Display the given string on the bottom of the screen in the color of choice. It will be there forerver so remember to set it inactive later
+    /// </summary>
+    /// <param name="newText"></param>
+    /// <param name="newColor"></param>
+    public void DisplayBottomText(string newText, Color newColor)
+    {
+        bottomLabelText.text = newText;
+        bottomLabelText.color = newColor;
+        bottomTextObject.SetActive(true);
+    }
+
+    /// <summary>
+    /// Displays a new string on the bottom of the screen, intended to be a detail text, for instance to say if something is wrong
+    /// </summary>
+    /// <param name="newText">The string the text will display</param>
+    /// <param name="duration">How long in seconds the text will be displayed</param>
+    /// <param name="newColor">The color of the text which will be displayed</param>
+    public void DisplayBottomText(string newText, float duration, Color newColor)
+    {
+        if (displayBottomTextCoroutine != null) { StopCoroutine(displayBottomTextCoroutine); }
+        displayBottomTextCoroutine = StartCoroutine(displayBottomTextCor(newText, duration, newColor));
+    }
+
+
+    private IEnumerator displayBottomTextCor(string newText, float duration, Color newColor)
+    {
+        bottomLabelText.text = newText;
+        bottomLabelText.color = newColor;
+        bottomTextObject.SetActive(true);
+        yield return new WaitForSeconds(duration);
+        bottomTextObject.SetActive(false);
     }
 
     // WHEN PLAYER CLICKS ON BARRACK THIS FUNCTION RUNS, ACTIVATES THE BARRACKS MENU
@@ -125,7 +171,7 @@ public class CanvasController : MonoBehaviour
     private void OnPlayerModeChanged(Constants.PlayerMode newPlayerMode)
     {
         // When the new player mode is army mode, the builder menu should drop down to its active position
-        if (newPlayerMode == Constants.PlayerMode.Army)
+        if (newPlayerMode == Constants.PlayerMode.Building)
         {
             MoveBuilderMenu(builderMenuActivePosition); // Smoothly move the builder menu to its active positioning
             powerBarObject.SetActive(false); // The player's power bar should not be seen when commanding armies
